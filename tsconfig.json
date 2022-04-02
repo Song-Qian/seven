@@ -1,0 +1,28 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es5",
+        "module": "AMD",
+        "strict": true,
+        "jsx": "preserve",
+        "baseUrl" : ".",
+        "sourceMap" : true,
+        "moduleResolution": "node",
+        "lib": ["dom", "ES2015", "ESNext"],
+        "stripInternal": true,
+        "declaration": false,
+        "rootDir" : "./src",
+        "outDir" : "./dist",
+        "removeComments": true,
+        "allowJs": false,
+        "paths": {
+          "~/*": [
+            "src/*"
+          ]
+        }
+    },
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+    ]
+  }
