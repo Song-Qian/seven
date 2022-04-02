@@ -12,12 +12,5 @@ module.exports = {
         directory: join(__dirname, '../dist'),
     },
     compress: true,
-    historyApiFallback : true,
-    proxy: {
-        '/api': {
-            target: 'http://localhost:8081',
-            changeOrigin: true,
-            pathRewrite: { '^/api': '' },
-        }
-    }
+    historyApiFallback : true
 }

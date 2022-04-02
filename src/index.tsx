@@ -1,6 +1,4 @@
 import { createApp, render } from 'vue'
-
-// import "element-plus/theme-chalk/src"
 import "~/assets/styles/index"
 
 //初始化根实例

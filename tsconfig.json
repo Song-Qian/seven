@@ -2,7 +2,7 @@
     "compileOnSave": true,
     "compilerOptions": {
         "target": "es5",
-        "module": "AMD",
+        "module": "umd",
         "strict": true,
         "jsx": "preserve",
         "baseUrl" : ".",

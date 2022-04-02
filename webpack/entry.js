@@ -7,6 +7,5 @@
 const path = require("path");
 
 module.exports =  {
-    'vue' : 'vue',
-    'app' : path.join(__dirname, '../', 'src/index.tsx')
+    'index' : path.join(__dirname, '../', 'src/index.tsx')
 }

@@ -37,25 +37,6 @@ module.exports = {
        maxAsyncRequests : 50,
        maxInitialRequests : 50,
        cacheGroups: {
-           'vue-lib': {
-                name: 'vue-lib',
-                test: /[\\/]node_module[\\/]\\@?vue(x|\\-router)?/,
-                priority: -20,
-                filename: 'vue.build.js'
-           },
-           'element-lib': {
-                name: 'element-lib',
-                test: /[\\/]node_modules[\\/]element-plus(.*)/,
-                priority: 10,
-                filename: 'element.build.js'
-           },
-           'commons': {
-               test: join(__dirname, '../src/commons'),
-               filename: 'commons.build.js',
-               priority: 10,
-               minChunks: 2,
-               reuseExistingChunk: true
-           },
            'default': {
                filename: '[name].build.js',
                priority: 20
