@@ -1,9 +1,8 @@
 {
     "presets": ["@babel/preset-env"],
     "plugins": [
-        "@vue/babel-plugin-jsx",
+        ["@vue/babel-plugin-jsx", { "transformOn" : false, "mergeProps" : true, "enableObjectSlots": true }],
         "@babel/plugin-transform-runtime",
-        "@babel/plugin-syntax-dynamic-import",
         [
             "@babel/plugin-transform-typescript",
             {

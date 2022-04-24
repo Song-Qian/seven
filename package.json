@@ -1,22 +1,20 @@
 {
-  "name": "vue-tsx",
-  "version": "1.0.0",
+  "name": "cobweb",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "webpack:build": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.config.js --progress",
-    "webpack:dev": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8080 --open",
-    "start": "concurrently 'npm:webpack:build' 'npm:webpack:dev'"
+    "webpack:dev": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8080 --open"
   },
   "author": "songqian",
   "license": "MIT",
   "dependencies": {
-    "vue": "^3.2.24",
-    "vuex": "^4.0.2"
+    "vue": "^3.2.31"
   },
   "devDependencies": {
+    "@arco-design/web-vue": "^2.22.1",
     "@babel/core": "^7.13.8",
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/plugin-transform-typescript": "^7.13.0",
     "@babel/preset-env": "^7.13.9",
