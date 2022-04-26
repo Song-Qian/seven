@@ -27,14 +27,13 @@ export const SymmetryPoint = function(p : Point, o : Point = { x : 0, y : 0 }, d
  * @description: 获取点对称角位置
  * @param {Point} 当前点
  * @param {Point} 圆心点
- * @param {*} 参考角
  * @return {*} 返回夹角对称点位置
  */
-export const SymmetryAnglePoint = function(p : Point, o : Point = { x : 0, y : 0 }, angle = 0) : Point {
+export const SymmetryAnglePoint = function(p : Point, o : Point = { x : 0, y : 0 }) : Point {
     let dist = Distance(p, o);
-    let oAngle = Angle(p, o);
-    let symmetryAngle = (angle % 360) + (oAngle - angle % 360) + 180;
-    return AnyAnglePoint(o, symmetryAngle, dist);
+    let clockwise = ClockwiseAngle(p, o);
+    let angle = (clockwise + 180) % 360;
+    return AnyAnglePoint(o, angle, dist);
 }
 
 /**
@@ -45,7 +44,8 @@ export const SymmetryAnglePoint = function(p : Point, o : Point = { x : 0, y : 0
  * @param {number} 半径
  * @return {*} 圆角度上的任意点位置
  */
-export const  AnyAnglePoint = function(p : Point, angle : number, r : number) {
+export const  AnyAnglePoint = function(p : Point, angle : number, r : number, counterclockwise: boolean = false) {
+    angle = counterclockwise ? -angle : angle;
     const x = p.x + r * Math.cos(angle * Math.PI / 180);
     const y = p.y + r * Math.sin(angle * Math.PI / 180);
     return { x, y };
@@ -71,4 +71,27 @@ export const Distance = function(a : Point, b : Point)  : number {
  */
 export const  Angle = function(a : Point, b : Point) : number {
     return Math.atan2((a.y - b.y), (a.x - b.x)) / (Math.PI / 180);
+}
+
+/**
+ * @Author: SongQian
+ * @description: 获取两点顺时针之间的角度
+ * @param {Point} 测量角的点
+ * @param {Point} 圆点
+ * @return {*} 两点形成的角度 value = 0 ~ 359.999...
+ */
+export const ClockwiseAngle = function(a: Point, b: Point) : number {
+    return (360 + Angle(a, b)) % 360;
+}
+
+/**
+ * @Author: SongQian
+ * @description: 获取两点逆时针之间的角度
+ * @param {Point} 测量角的点
+ * @param {Point} 圆点
+ * @return {*} 两点形成的角度过value = 0 ~ 359.999...
+ */
+export const  CounterclockwiseAngle = function(a : Point, b: Point) : number {
+    const angle = Math.atan2((b.y - a.y), (a.x - b.x)) / (Math.PI / 180);
+    return (360 + angle) % 360;
 }
