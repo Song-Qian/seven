@@ -5,4 +5,4 @@
  * @eMail: onlylove1172559463@vip.qq.com
  */
 
-export * as Point from '~/warror/point'
+export * as Point from '~/seven/point'

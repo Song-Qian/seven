@@ -4,8 +4,7 @@
  * @Description: 点算法
  * @eMail: onlylove1172559463@vip.qq.com
  */
-
-type Point = { x: number, y: number}
+import { Point, Circle } from './declare'
 
 /**
  * @Author: SongQian
@@ -94,4 +93,20 @@ export const ClockwiseAngle = function(a: Point, b: Point) : number {
 export const  CounterclockwiseAngle = function(a : Point, b: Point) : number {
     const angle = Math.atan2((b.y - a.y), (a.x - b.x)) / (Math.PI / 180);
     return (360 + angle) % 360;
+}
+
+/**
+ * @Author: SongQian
+ * @description: 两点是否重叠
+ * @param {Point} 重叠点A
+ * @param {Point} 重叠点B
+ * @param {number} 计算精度表达式 如：0.1计算一个小数位、0.0001 计算四个小数位
+ * @return {*} 返回重叠判定结果
+ */
+export const  IsOverlapping = function(a : Point, b : Point, precision :  number = 1) : boolean {
+    let multiple = 1;
+    while((precision * multiple) % 1 < 0) {
+        multiple *= 10;
+    }
+    return ((a.x * multiple) >> 0) === ((b.x * multiple) >> 0) && ((a.y * multiple) >> 0) === ((b.y * multiple) >> 0);
 }

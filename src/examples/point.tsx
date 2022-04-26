@@ -4,7 +4,7 @@
  * @Description: 点物理二维图形功能展示
  * @eMail: onlylove1172559463@vip.qq.com
  */
-import { Point } from '~/warror'
+import { Point } from '~/seven'
 import { defineComponent, ComponentOptionsWithoutProps, SetupContext, render, reactive, ref, onMounted, provide } from 'vue'
 
 import './point.sass'
@@ -190,7 +190,6 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.closePath();
                 counterclockwiseAngleArgs.output = output;
             }
-
         }
 
         let ResetSymmetryBase = () => {
