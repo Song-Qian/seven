@@ -28,6 +28,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let counterclockwiseAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let distanceArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let listArgs = reactive<{ a : any, distanct : number, len: number, output: Array<any>}>({ a : { x : 0, y : 0 }, distanct : 1, len :  0,  output: [] })
+        let overlappingArgs = reactive({ precision: 1, a : { x : 0, y : 0 }, b : { x : 0, y : 0}, output: false })
 
         let drawerPoint = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -237,6 +238,27 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.fill();
                 ctx.closePath();
                 listArgs.output = points.map(it => ({ x :  (it.x - x) / gutter, y :  (y - it.y) / gutter }));
+            }
+
+            if (type.value[0] === "IsOverlapping") {
+                const { x, y, gutter } = descartes;
+                let aPoint = {
+                    x : x + overlappingArgs.a.x * gutter,
+                    y : y + overlappingArgs.a.y * gutter
+                } 
+                let bPoint = {
+                    x :  x + overlappingArgs.b.x * gutter,
+                    y : y + overlappingArgs.b.y * gutter
+                }
+                let isOverlapping = Point.IsOverlapping(aPoint, bPoint, 10 / Math.pow(10, overlappingArgs.precision));
+                ctx.beginPath();
+                ctx.fillStyle = isOverlapping ?  "red" : "blue";
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2  * Math.PI);
+                ctx.moveTo(bPoint.x, bPoint.y);
+                ctx.arc(bPoint.x, bPoint.y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillText(isOverlapping ? "重叠" : "-", aPoint.x + 10, aPoint.y + 10);
+                ctx.closePath();
             }
         }
 
@@ -500,6 +522,25 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(listArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="点重叠" key="IsOverlapping">
+                            <acro-form model={overlappingArgs} layout="vertical">
+                                <acro-form-item label="精度">
+                                    <acro-slider v-model={overlappingArgs.precision} step={1} format-tooltip={(value: number) => 10 / Math.pow(10, value) }  min={1} max={10} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="A点 x坐标">
+                                    <acro-slider v-model={overlappingArgs.a.x} step={10 / Math.pow(10, overlappingArgs.precision)} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="A点 y坐标">
+                                    <acro-slider v-model={overlappingArgs.a.y} step={10 / Math.pow(10, overlappingArgs.precision)} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="B点 x坐标">
+                                    <acro-slider v-model={overlappingArgs.b.x} step={10 / Math.pow(10, overlappingArgs.precision)} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="B点 y坐标">
+                                    <acro-slider v-model={overlappingArgs.b.y} step={10 / Math.pow(10, overlappingArgs.precision)} min={-20} max={20} onChange={drawerPoint} />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
