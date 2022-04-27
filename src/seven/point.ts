@@ -97,6 +97,36 @@ export const  CounterclockwiseAngle = function(a : Point, b: Point) : number {
 
 /**
  * @Author: SongQian
+ * @description: 获取点平移后的位置
+ * @param {Point} 平移点
+ * @param {number} 平移距离
+ * @param {string} 平移方向
+ * @return {*}
+ */
+export const MoveTo = function(a : Point, distance : number, direction : string = 'h') : Point {
+    let x = direction == 'h' ? a.x + distance : a.x;
+    let y = direction == 'v' ? a.y + distance : a.y;
+    return { x, y };
+}
+
+/**
+ * @Author: SongQian
+ * @description: 获取点阵列位置 
+ * @param {Point} 参考点
+ * @param {number} 点距离
+ * @param {number} 阵列长度
+ * @return {*}
+ */
+export const  List = function(a : Point, distance : number, len : number ) : Array<Point> {
+    return new Array(len).fill('').map(
+        (_, i) => new Array(len).fill('').map(
+            (_, k) => ({ x : a.x + distance * k, y : a.y + distance * i })
+        )
+    ).flat(2);
+}
+
+/**
+ * @Author: SongQian
  * @description: 两点是否重叠
  * @param {Point} 重叠点A
  * @param {Point} 重叠点B

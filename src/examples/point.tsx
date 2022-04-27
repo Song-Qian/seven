@@ -19,13 +19,15 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let descartes = reactive<{ x : number, y : number, gutter : number }>({ x : 0, y : 0, gutter: 20 });
         provide("descartes", descartes);
 
-        let symmetryPointArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, direction : "h", output: { x : 0, y : 0 } })
-        let symmetryAngleArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, output: { x : 0, y : 0 } })
+        let symmetryPointArgs = reactive({ a : { x : 0, y : 0 },  direction : "h", output: { x : 0, y : 0 } })
+        let symmetryAngleArgs = reactive({ a : { x : 0, y : 0 },  output: { x : 0, y : 0 } })
         let anyAngleArgs = reactive({  a : { x : 0, y : 0 },  radius: 0, angle : 0, iscounterclockwise : false, output: { x : 0, y : 0 } })
-        let includedAngleArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, output: 0 })
-        let clockwiseAngleArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, output: 0 })
-        let counterclockwiseAngleArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, output: 0 })
-        let distanceArgs = reactive({ a : { x : 0, y : 0 }, b : { x : 0, y : 0 }, output: 0 })
+        let moveToArgs = reactive({ a : { x : 0, y : 0 }, distanct : 0, direction : 'h', output: { x : 0, y : 0 } })
+        let includedAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
+        let clockwiseAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
+        let counterclockwiseAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
+        let distanceArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
+        let listArgs = reactive<{ a : any, distanct : number, len: number, output: Array<any>}>({ a : { x : 0, y : 0 }, distanct : 1, len :  0,  output: [] })
 
         let drawerPoint = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -89,6 +91,28 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.closePath();
                 anyAngleArgs.output.x = (point.x - x) / gutter ;
                 anyAngleArgs.output.y = (y - point.y) / gutter ;
+            }
+
+            if (type.value[0] === "MoveTo") {
+                let { x, y, gutter } = descartes;
+                let point = {
+                    x : x + moveToArgs.a.x * gutter,
+                    y : y - moveToArgs.a.y * gutter
+                }
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+                let distance = moveToArgs.direction === "h" ? moveToArgs.distanct * gutter : -(moveToArgs.distanct * gutter);
+                var movePoint = Point.MoveTo(point, distance, moveToArgs.direction);
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                ctx.arc(movePoint.x, movePoint.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+                moveToArgs.output.x = (movePoint.x - x) / gutter;
+                moveToArgs.output.y =  (y - movePoint.y) / gutter;
             }
 
             if (type.value[0] === "Angle") {
@@ -189,6 +213,30 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.stroke();
                 ctx.closePath();
                 counterclockwiseAngleArgs.output = output;
+            }
+
+            if (type.value[0] === "List") {
+                let { x, y, gutter } = descartes;
+                let point = {
+                    x: x + listArgs.a.x * gutter,
+                    y : y - listArgs.a.y * gutter
+                }
+                let distanct = listArgs.distanct * gutter;
+                let points = Point.List(point, distanct, listArgs.len);
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                points.forEach((it) => {
+                    ctx?.moveTo(it.x, it.y);
+                    ctx?.arc(it.x, it.y, 5, 0 , 2  * Math.PI)
+                });
+                ctx.fill();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.arc(point.x, point.y, 5, 0 , 2 * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+                listArgs.output = points.map(it => ({ x :  (it.x - x) / gutter, y :  (y - it.y) / gutter }));
             }
         }
 
@@ -296,7 +344,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={symmetryPointArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(symmetryPointArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="对称方向">
                                     <acro-radio-group v-model={ symmetryPointArgs.direction } type="button" onChange={drawerPoint}>
@@ -318,7 +366,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={symmetryAngleArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(symmetryAngleArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(symmetryAngleArgs.output) } readonly />
@@ -328,7 +376,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                         <acro-collapse-item header="任意角" key="AnyAnglePoint">
                             <acro-form model={anyAngleArgs} layout="vertical">
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(anyAngleArgs.a)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="半径">
                                     <acro-slider v-model={anyAngleArgs.radius} min={0} max={20} onChange={drawerPoint} />
@@ -347,6 +395,31 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
+                        <acro-collapse-item header="点平移" key="MoveTo">
+                            <acro-form model={moveToArgs} layout="vertical">
+                                <acro-form-item label="A点 x坐标">
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={moveToArgs.a.x} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="A点 y坐标">
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={moveToArgs.a.y} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="移动距离">
+                                    <acro-slider v-model={moveToArgs.distanct} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="参考点">
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
+                                </acro-form-item>
+                                <acro-form-item label="方向">
+                                    <acro-radio-group v-model={ moveToArgs.direction } type="button" onChange={drawerPoint}>
+                                        <acro-radio value="h">水平</acro-radio>
+                                        <acro-radio value="v">垂直</acro-radio>
+                                    </acro-radio-group>
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(moveToArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
                         <acro-collapse-item header="两点距离" key="Distance">
                             <acro-form model={distanceArgs} layout="vertical">
                                 <acro-form-item label="A点 x坐标">
@@ -356,7 +429,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={distanceArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(distanceArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(distanceArgs.output) } readonly />
@@ -372,7 +445,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={includedAngleArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(includedAngleArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(includedAngleArgs.output) } readonly />
@@ -388,7 +461,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={clockwiseAngleArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(clockwiseAngleArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(clockwiseAngleArgs.output) } readonly />
@@ -404,10 +477,29 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                     <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={counterclockwiseAngleArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
-                                    <acro-input  model-value={JSON.stringify(counterclockwiseAngleArgs.b)} readonly></acro-input>
+                                    <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(counterclockwiseAngleArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="点阵列" key="List">
+                            <acro-form model={listArgs} layout="vertical">
+                                <acro-form-item label="A点 x坐标">
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={listArgs.a.x} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="A点 y坐标">
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={listArgs.a.y} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="点距离">
+                                    <acro-slider v-model={listArgs.distanct} min={1} max={5} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="阵列长度">
+                                    <acro-slider v-model={listArgs.len} min={0} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(listArgs.output) } readonly />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
