@@ -5,7 +5,7 @@
  * @eMail: onlylove1172559463@vip.qq.com
  */
 import { defineComponent, ComponentOptionsWithoutProps, SetupContext, onMounted, render, ref, reactive } from 'vue'
-import { Geometry, Circle } from '~/seven'
+import { Geometry, Circle, Point } from '~/seven'
 
 type Props = {}
 export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
@@ -17,7 +17,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
 
         let generateCircleArgs = reactive<{ a : Geometry.Point, radius : number, size : number, output: Array<any>}>({ a : { x : 0, y : 0 }, radius: 1, size : 10 , output: [] })
         let generateEllipseArgs = reactive<{ a : Geometry.Point, laxis : number, saxis : number, angle : number, size : number, output: Array<any>}>({  a : { x : 0, y : 0}, laxis : 1, saxis : 1, angle: 0, size : 10, output: [] })
-        let ellipseAnyAngleXYArgs = reactive({ a : { x : 0, y : 0 }, laxis : 1, saxis : 1, angle : 0, output : { x : 0, y : 0 }})
+        let ellipseAnyAngleXYArgs = reactive({ a : { x : 0, y : 0 }, laxis : 1, saxis : 1, angle : 0, rotate: 0, output : { x : 0, y : 0 }})
 
         let drawCircle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -68,7 +68,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.fill();
                 ctx.stroke();
                 ctx.closePath();
-                let output = Circle.GenerateEllipse(point, generateEllipseArgs.laxis * gutter, generateEllipseArgs.saxis * gutter, generateEllipseArgs.size);
+                let output = Circle.GenerateEllipse(point, generateEllipseArgs.laxis * gutter, generateEllipseArgs.saxis * gutter, generateEllipseArgs.size, generateEllipseArgs.angle);
                 ctx.beginPath();
                 ctx.fillStyle = "blue";
                 output.points.forEach((it) => {
@@ -94,19 +94,23 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.lineWidth = 2;
                 ctx.arc(point.x, point.y, 5, 0, 2  * Math.PI);
                 ctx.moveTo(point.x, point.y);
-                ctx.lineTo(point.x + ellipseAnyAngleXYArgs.laxis * gutter, point.y);
+                let dist = Point.Distance(point, { x:  point.x + ellipseAnyAngleXYArgs.laxis * gutter, y : point.y});
+                let p = Point.AnyAnglePoint(point, ellipseAnyAngleXYArgs.rotate, dist, false);
+                ctx.lineTo(p.x, p.y);
                 ctx.moveTo(point.x, point.y);
-                ctx.lineTo(point.x, point.y - ellipseAnyAngleXYArgs.saxis * gutter);
+                dist = Point.Distance(point, { x:  point.x, y : point.y - ellipseAnyAngleXYArgs.saxis * gutter });
+                p = Point.AnyAnglePoint(point, ellipseAnyAngleXYArgs.rotate  - 90, dist, false);
+                ctx.lineTo(p.x, p.y);
                 ctx.fill();
                 ctx.stroke();
                 ctx.closePath();
-                let output = Circle.EllipseAnyAngleXY(point, ellipseAnyAngleXYArgs.laxis * gutter, ellipseAnyAngleXYArgs.saxis * gutter, ellipseAnyAngleXYArgs.angle);
+                let output = Circle.EllipseAnyAngleXY(point, ellipseAnyAngleXYArgs.laxis * gutter, ellipseAnyAngleXYArgs.saxis * gutter, ellipseAnyAngleXYArgs.angle, ellipseAnyAngleXYArgs.rotate);
                 ctx.beginPath();
                 ctx.fillStyle = "blue";
                 ctx.arc(output.x, output.y, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.closePath();
-                ellipseAnyAngleXYArgs.output = output;
+                ellipseAnyAngleXYArgs.output = { x : (output.x - x) / gutter, y :  (y - output.y) / gutter };
             }
         }
 
@@ -265,6 +269,9 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="角度">
                                     <acro-slider v-model={ ellipseAnyAngleXYArgs.angle} min={0} max={360} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="旋转">
+                                    <acro-slider v-model={ ellipseAnyAngleXYArgs.rotate} min={0} max={360} step={ 1 } onChange={drawCircle} />
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(ellipseAnyAngleXYArgs.output) } readonly />

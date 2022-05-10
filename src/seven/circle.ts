@@ -15,7 +15,7 @@ import { AnyAnglePoint } from "./point"
  * @param {number} 圆上点数量
  * @return {*} 返回一个圆的Geometry对象
  */
-export const GenerateCircle = function(o : Point, radius: number, size : number = 100) : Circle {
+export const GenerateCircle = (o : Point, radius: number, size : number = 100) : Circle => {
     const points = new Array(size).fill(360 / size).map((v, i) => AnyAnglePoint(o, v * i, radius));
     return { points }
 }
@@ -31,8 +31,8 @@ export const GenerateCircle = function(o : Point, radius: number, size : number 
  * @param {number} 椭圆上点数量
  * @return {*} 返回一个椭圆的Geometry对象
  */
-export const GenerateEllipse = function(o : Point, laxis : number, saxis : number, size : number = 100) : Circle {
-    const points = new Array(size).fill(360 / size).map((v, i) =>  EllipseAnyAngleXY(o, laxis, saxis, v * i));
+export const GenerateEllipse = (o : Point, laxis : number, saxis : number, size : number = 100, ratate : number = 0) : Circle => {
+    const points = new Array(size).fill(360 / size).map((v, i) =>  EllipseAnyAngleXY(o, laxis, saxis, v * i, ratate));
     return { points }
 }
 
@@ -47,11 +47,18 @@ export const GenerateEllipse = function(o : Point, laxis : number, saxis : numbe
  * @param {number} 椭圆上点数量
  * @return {*} 返回一个椭圆的Geometry对象
  */
-export const EllipseAnyAngleXY = function(o : Point, laxis : number, saxis : number, angle : number) : Point {
-    //P((ab*cost)/√[(b*cost)^2+(a*sint)^2]，(ab*sint)/√[(b*cost)^2+(a*sint)^2])
+export const EllipseAnyAngleXY = (o : Point, laxis : number, saxis : number, angle : number, rotate : number = 0) : Point => {
     angle = angle * (Math.PI / 180);
+    rotate = rotate * (Math.PI / 180);
+    //P((ab*cosφ)/√[(b*cosφ)^2+(a*sinφ)^2]，(ab*sinφ)/√[(b*cosφ)^2+(a*sinφ)^2])
+    let p = {
+        x : (laxis * saxis * Math.cos(angle)) / Math.sqrt(Math.pow((saxis * Math.cos(angle)), 2) + Math.pow((laxis * Math.sin(angle)), 2)),
+        y : (laxis * saxis * Math.sin(angle)) / Math.sqrt(Math.pow((saxis * Math.cos(angle)), 2) + Math.pow((laxis * Math.sin(angle)), 2))
+    }
+    //x′=x cos φ-y(b/a)sin φ，y′=x·(a/b)sin φ+ycos φ ??? 三维变换公式 ?
+    //x′=x cos φ-ysin φ，y′=xsin φ+ycos φ 平面旋转
     return {
-        x : o.x + (laxis * saxis * Math.cos(angle)) / Math.sqrt(Math.pow((saxis * Math.cos(angle)), 2) + Math.pow((laxis * Math.sin(angle)), 2)),
-        y : o.y + (laxis * saxis * Math.sin(angle)) / Math.sqrt(Math.pow((saxis * Math.cos(angle)), 2) + Math.pow((laxis * Math.sin(angle)), 2))
+        x : o.x + p.x * Math.cos(rotate)  - p.y * Math.sin(rotate),
+        y : o.y + p.x * Math.sin(rotate) + p.y * Math.cos(rotate)
     }
 }
