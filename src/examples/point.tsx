@@ -7,8 +7,6 @@
 import { Point } from '~/seven'
 import { defineComponent, ComponentOptionsWithoutProps, SetupContext, render, reactive, ref, onMounted, provide } from 'vue'
 
-import './point.sass'
-
 type Props = {}
 
 export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
@@ -23,12 +21,13 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let symmetryAngleArgs = reactive({ a : { x : 0, y : 0 },  output: { x : 0, y : 0 } })
         let anyAngleArgs = reactive({  a : { x : 0, y : 0 },  radius: 0, angle : 0, iscounterclockwise : false, output: { x : 0, y : 0 } })
         let moveToArgs = reactive({ a : { x : 0, y : 0 }, distanct : 0, direction : 'h', output: { x : 0, y : 0 } })
-        let includedAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
+        let angleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let clockwiseAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let counterclockwiseAngleArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let distanceArgs = reactive({ a : { x : 0, y : 0 },  output: 0 })
         let listArgs = reactive<{ a : any, distanct : number, len: number, output: Array<any>}>({ a : { x : 0, y : 0 }, distanct : 1, len :  0,  output: [] })
         let overlappingArgs = reactive({ precision: 1, a : { x : 0, y : 0 }, b : { x : 0, y : 0}, output: false })
+        let includedAngleArgs = reactive({ a: { x : 0, y : 0 }, b : { x : 0, y : 0 }, output : 0});
 
         let drawerPoint = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -119,8 +118,8 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
             if (type.value[0] === "Angle") {
                 let { x, y, gutter } = descartes;
                 let point = {
-                    x: x + includedAngleArgs.a.x * gutter,
-                    y : y - includedAngleArgs.a.y * gutter
+                    x: x + angleArgs.a.x * gutter,
+                    y : y - angleArgs.a.y * gutter
                 }
                 ctx.beginPath();
                 ctx.fillStyle = "red";
@@ -137,7 +136,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.lineTo(point.x, point.y);
                 ctx.stroke();
                 ctx.closePath();
-                includedAngleArgs.output = output;
+                angleArgs.output = output;
             }
 
             if (type.value[0] === "Distance") {
@@ -260,6 +259,45 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.fillText(isOverlapping ? "重叠" : "-", aPoint.x + 10, aPoint.y + 10);
                 ctx.closePath();
             }
+
+            if (type.value[0] === "IncludedAngle") {
+                const { x, y, gutter } = descartes;
+                let aPoint = {
+                    x : x + includedAngleArgs.a.x * gutter,
+                    y : y + includedAngleArgs.a.y * gutter
+                } 
+                let bPoint = {
+                    x :  x + includedAngleArgs.b.x * gutter,
+                    y : y + includedAngleArgs.b.y * gutter
+                }
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.lineCap = "round";
+                ctx.lineJoin  = "round";
+                ctx.lineWidth = 2;
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2  * Math.PI);
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0, 2  * Math.PI);
+                ctx.moveTo(bPoint.x, bPoint.y);
+                ctx.arc(bPoint.x, bPoint.y, 5, 0, 2  * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.moveTo(bPoint.x, bPoint.y);
+                ctx.lineTo(x, y);
+                ctx.lineTo(aPoint.x, aPoint.y);
+                ctx.stroke();
+                ctx.fillText("A点", aPoint.x + 10, aPoint.y - 10);
+                ctx.fillText("B点", x + 10, y - 10);
+                ctx.fillText("C点", bPoint.x + 10, bPoint.y - 10);
+                ctx.closePath();
+                let output =  Point.IncludedAngle(aPoint, descartes, bPoint);
+                ctx.fillStyle = "blue";
+                ctx.fillText(String(output), x - 10, y + 10);
+                includedAngleArgs.output = output;
+            }
         }
 
         let ResetSymmetryBase = () => {
@@ -342,7 +380,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
 
         onMounted(() => {
             ResetSymmetryBase();
-            window.onreset = () => {
+            window.onresize = () => {
                 if (canvas.value) {
                     canvas.value.width = canvas.value.clientWidth;
                     canvas.value.height = canvas.value.clientHeight;
@@ -459,18 +497,18 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                             </acro-form>
                         </acro-collapse-item>
                         <acro-collapse-item header="两点角度" key="Angle">
-                            <acro-form model={includedAngleArgs} layout="vertical">
+                            <acro-form model={angleArgs} layout="vertical">
                                 <acro-form-item label="A点 x坐标">
-                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={includedAngleArgs.a.x} onChange={drawerPoint} />
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={angleArgs.a.x} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="A点 y坐标">
-                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={includedAngleArgs.a.y} onChange={drawerPoint} />
+                                    <acro-input-number placeholder="Please Enter" default-value={0} mode="button" v-model={angleArgs.a.y} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="参考点">
                                     <acro-input  model-value={JSON.stringify({ x : 0, y : 0})} readonly></acro-input>
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
-                                    <acro-textarea model-value={ JSON.stringify(includedAngleArgs.output) } readonly />
+                                    <acro-textarea model-value={ JSON.stringify(angleArgs.output) } readonly />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
@@ -541,6 +579,25 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="B点 y坐标">
                                     <acro-slider v-model={overlappingArgs.b.y} step={10 / Math.pow(10, overlappingArgs.precision)} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="夹角" key="IncludedAngle">
+                            <acro-form model={includedAngleArgs} layout="vertical">
+                                <acro-form-item label="A点 x坐标">
+                                    <acro-slider v-model={includedAngleArgs.a.x} step={1} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="A点 y坐标">
+                                    <acro-slider v-model={includedAngleArgs.a.y} step={1} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="C点 x坐标">
+                                    <acro-slider v-model={includedAngleArgs.b.x} step={1} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="C点 y坐标">
+                                    <acro-slider v-model={includedAngleArgs.b.y} step={1} min={-20} max={20} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(includedAngleArgs.output) } readonly />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>

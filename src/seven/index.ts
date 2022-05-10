@@ -4,5 +4,7 @@
  * @Description: 2D and 3D 点线面等基础要素算法库
  * @eMail: onlylove1172559463@vip.qq.com
  */
-
+export * as Geometry from '~/seven/declare'
 export * as Point from '~/seven/point'
+export * as Line from '~/seven/line'
+export * as Circle from '~/seven/circle'

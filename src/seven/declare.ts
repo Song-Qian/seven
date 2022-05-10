@@ -13,9 +13,9 @@ export type Point = { x: number, y: number}
 
 /**
  * @Author: SongQian
- * @description: 弧
+ * @description: 线
  */
- export type Arc = {
+ export type Line = {
     points : Readonly<Array<Point>>
 }
 
