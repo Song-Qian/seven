@@ -7,7 +7,7 @@
 
 const { merge } = require('webpack-merge')
 const devServer = require('./devServer')
-const webpackConfig = require('./webpack.config')
+const webpackConfig = require('./webpack.examples')
 
 module.exports = merge(webpackConfig, {
     devServer

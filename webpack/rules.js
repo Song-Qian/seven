@@ -4,6 +4,7 @@
  * eMail        :   onlylove1172559463@vip.qq.com
  * Description  :   生产编译处理配置
  */
+const path = require('path');
 
 module.exports = function(miniCssExtractPlugin) {
 
@@ -22,7 +23,7 @@ module.exports = function(miniCssExtractPlugin) {
     test: /\.(png|jpg|gif)$/i,
     type: 'asset',
     generator: {
-      filename: 'assets/images/[name].[ext]?cache=[hash:8]'
+      filename:  'assets/images/[name].[ext]?cache=[hash:8]'
     }
   }
 

@@ -6,7 +6,6 @@
  */
 
 const TerserPlugin = require('terser-webpack-plugin');
-const { join } = require('path')
 
 module.exports = {
    minimize : process.env.NODE_ENV === 'production',
@@ -35,12 +34,6 @@ module.exports = {
        minSize : 20480,
        minChunks : 1,
        maxAsyncRequests : 50,
-       maxInitialRequests : 50,
-       cacheGroups: {
-           'default': {
-               filename: '[name].build.js',
-               priority: 20
-           }
-       }
+       maxInitialRequests : 50
    }
 }

@@ -6,7 +6,6 @@
  */
 const { merge } = require('webpack-merge')
 const miniCssExtractPlugin = require('mini-css-extract-plugin')
-
 const entry = require("./entry")
 const output = require("./output")
 const rules = require("./rules")
@@ -27,7 +26,8 @@ module.exports = merge({}, {
   mode: 'production',
   plugins: [
     new miniCssExtractPlugin({
-      filename: 'assets/css/[name].css'
+      filename: 'examples/assets/css/[name].css',
+      chunkFilename: 'examples/assets/css/[name].[contenthash:8].css',
     }),
     ...plugins()
   ],
