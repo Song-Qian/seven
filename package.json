@@ -1,7 +1,7 @@
 {
   "name": "@skysong/seven",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.4",
+  "description": "Seven a geometry library",
   "main": "index.js",
   "scripts": {
     "webpack:prod": "concurrently 'npm run webpack:examples' 'npm run webpack:build' 'npm run webpack:dev'",
@@ -34,5 +34,13 @@
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.3.1",
     "webpack-merge": "^5.7.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com:Song-Qian/seven.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Song-Qian/seven/issues"
+  },
+  "homepage": "https://github.com/Song-Qian/seven#readme"
 }

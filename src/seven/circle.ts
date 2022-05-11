@@ -62,3 +62,62 @@ export const EllipseAnyAngleXY = (o : Point, laxis : number, saxis : number, ang
         y : o.y + p.x * Math.sin(rotate) + p.y * Math.cos(rotate)
     }
 }
+
+/**
+ * @LastEditors: SongQian
+ * @Author: SongQian
+ * @Date: 2022/05/11 15:27
+ * @description: 获取椭圆的离心率
+ * @param {number} 短半轴
+ * @param {number} 长半轴
+ * @return {*} 返回椭圆离心率
+ */
+export const EllipseEccentricity = (saxis : number, laxis : number) : number => {
+    [saxis, laxis] = laxis < saxis ? [laxis, saxis] : [saxis, laxis];
+    return Math.sqrt(1 - (saxis * saxis) / (laxis * laxis));
+}
+
+/**
+ * @LastEditors: SongQian
+ * @Author: SongQian
+ * @Date: 2022/05/11 16:10
+ * @description: 获取椭圆的焦点 
+ * @param {Point} 圆心
+ * @param {number} 短半轴
+ * @param {number} 长半轴
+ * @param {number} 转旋角度(顺时针)
+ * @return {*} 返回椭圆焦点
+ */
+export const EllipseFocus = (o : Point, saxis : number, laxis: number, rotate: number = 0) : [Point, Point] => {
+    // a > b > 0, a > c > 0;
+    //椭圆焦点距离公式: c ^ 2 = a ^ 2 - b ^ 2; 
+    [saxis, laxis] = laxis < saxis ? [laxis, saxis] : [saxis, laxis];
+    let c = Math.sqrt(Math.pow(laxis, 2) - Math.pow(saxis, 2));
+    return [
+        { x : o.x + c *  Math.cos(rotate * Math.PI / 180), y : o.y + c * Math.sin(rotate * Math.PI / 180) },
+        { x : o.x - c *  Math.cos(rotate * Math.PI / 180), y : o.y + c * Math.sin((rotate + 180) * Math.PI / 180) }
+    ]
+}
+
+/**
+ * @LastEditors: SongQian
+ * @Author: SongQian
+ * @Date: 2022/05/11 17:55
+ * @description: 椭圆焦点的通径长度
+ * @param {number} 短半轴
+ * @param {number} 长半轴
+ * @return {*} 返回通径长度
+ */
+export const EllipseFocusShortStrings = (o : Point, saxis : number, laxis : number, isRight : boolean = true) : [Point, Point, number] => {
+    // a > b > 0, a > c > 0;
+    // c ^ 2 = a ^ 2 - b ^ 2; 
+    // 令x = c, x = -c, 则y1 = (x, b ^ 2 / a) y2 = (x, -b ^ 2 / a)或者y1 = (-x, b ^ 2 / a) y2 = (-x, -b ^ 2 / a)
+    // 通径距离为: 2b^2 / a
+    [saxis, laxis] = laxis < saxis ? [laxis, saxis] : [saxis, laxis];
+    let c = Math.sqrt(Math.pow(laxis, 2) - Math.pow(saxis, 2));
+    return [
+        { x : isRight ? o.x + c : o.x - c, y : o.y + Math.pow(saxis, 2) / laxis },
+        { x : isRight ? o.x + c : o.x - c, y : o.y + -(Math.pow(saxis, 2) / laxis) },
+        Math.pow(2 * saxis, 2) / laxis
+    ]
+}
