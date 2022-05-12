@@ -21,6 +21,8 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let ellipseEccentricityArgs = reactive<{ laxis : number, saxis : number, output: number }>({ laxis: 0, saxis: 0, output: 0 })
         let ellipseFocusArgs = reactive<{ laxis : number, saxis : number, rotate: number, output: [Geometry.Point, Geometry.Point] }>({ laxis: 0, saxis: 0, rotate: 0, output: [{x : 0, y: 0}, {x : 0, y: 0}]})
         let ellipseFocusShortStringsArgs = reactive<{ laxis: number, saxis: number, isRight: boolean, output: [Geometry.Point, Geometry.Point, number] }>({ laxis: 0, saxis: 0, isRight: true, output: [{ x: 0, y : 0}, { x: 0, y : 0}, 0] })
+        let inEllipseArgs = reactive<{ a : Geometry.Point, o : Geometry.Point, laxis : number, saxis : number, output: number }>({ a : { x : 0, y : 0 },  o : { x : 0, y : 0 }, laxis : 0, saxis: 0, output: 0  })
+        let ellipseFocusRadiusArgs = reactive<{ angle : number, laxis : number, saxis : number, output: [number, number] }>({ angle : 0, laxis : 0, saxis: 0, output: [0, 0] });
 
         let drawCircle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -146,8 +148,8 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                     ctx?.arc(it.x, it.y, 5, 0, 2  * Math.PI);
                 })
                 ctx.fill();
-                ctx.fillText(String(output), x + 10, y - 10);
-                ellipseEccentricityArgs.output = output;
+                ctx.fillText(String(output.E), x + 10, y - 10);
+                ellipseEccentricityArgs.output = output.E || 0;
             }
 
             if (type.value[0] === "EllipseFocus") {
@@ -179,23 +181,20 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.closePath();
                 ctx.beginPath();
                 ctx.fillStyle = "blue";
-                ctx.moveTo(output[0].x, output[0].y);
-                ctx.arc(output[0].x, output[0].y, 5, 0, 2  * Math.PI);
-                ctx.moveTo(output[1].x, output[1].y);
-                ctx.arc(output[1].x, output[1].y, 5, 0, 2  * Math.PI);
-                ctx.moveTo(output[0].x, output[0].y);
-                ctx.lineTo(output[1].x, output[1].y);
+                ctx.moveTo(output.PF1.x, output.PF1.y);
+                ctx.arc(output.PF1.x, output.PF1.y, 5, 0, 2  * Math.PI);
+                ctx.moveTo(output.PF2.x, output.PF2.y);
+                ctx.arc(output.PF2.x, output.PF2.y, 5, 0, 2  * Math.PI);
+                ctx.moveTo(output.PF1.x, output.PF1.y);
+                ctx.lineTo(output.PF2.x, output.PF2.y);
                 ctx.fill();
                 ctx.closePath();
-                ellipseFocusArgs.output = [
-                    { x : (output[0].x - x) / gutter,  y : (y - output[0].y) / gutter },
-                    { x : (output[1].x - x) / gutter, y : (y - output[1].y) / gutter }
-                ];
+                ellipseFocusArgs.output = [output.PF1, output.PF2];
             }
 
             if (type.value[0] === "EllipseFocusShortStrings") {
                 let { x, y, gutter } = descartes;
-                let [bottomFocus, topFocus, distance] = Circle.EllipseFocusShortStrings({x, y}, ellipseFocusShortStringsArgs.saxis * gutter, ellipseFocusShortStringsArgs.laxis * gutter, ellipseFocusShortStringsArgs.isRight);
+                let { P1, P2, D } = Circle.EllipseFocusShortStrings({x, y}, ellipseFocusShortStringsArgs.saxis * gutter, ellipseFocusShortStringsArgs.laxis * gutter, ellipseFocusShortStringsArgs.isRight);
                 let circle = Circle.GenerateEllipse(descartes, ellipseFocusShortStringsArgs.laxis * gutter, ellipseFocusShortStringsArgs.saxis * gutter, 30);
                 ctx.beginPath();
                 ctx.fillStyle = "red";
@@ -213,20 +212,98 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.lineCap = "round";
                 ctx.lineJoin = "round";
                 ctx.lineWidth = 2;
-                ctx.moveTo(topFocus.x, topFocus.y);
-                ctx.arc(topFocus.x, topFocus.y, 5, 0 , 2 * Math.PI);
-                ctx.moveTo(bottomFocus.x, bottomFocus.y);
-                ctx.arc(bottomFocus.x, bottomFocus.y, 5, 0 , 2 * Math.PI);
-                ctx.moveTo(topFocus.x, topFocus.y);
-                ctx.lineTo(bottomFocus.x, bottomFocus.y);
+                ctx.moveTo(P1.x, P1.y);
+                ctx.arc(P1.x, P1.y, 5, 0 , 2 * Math.PI);
+                ctx.moveTo(P2.x, P2.y);
+                ctx.arc(P2.x, P2.y, 5, 0 , 2 * Math.PI);
+                ctx.moveTo(P1.x, P1.y);
+                ctx.lineTo(P2.x, P2.y);
                 ctx.stroke();
                 ctx.fill();
                 ctx.closePath();
                 ellipseFocusShortStringsArgs.output = [
-                    { x : (bottomFocus.x - x) / gutter, y : (y - bottomFocus.y) / gutter },
-                    { x : (topFocus.x - x) / gutter, y : (y - topFocus.y) / gutter },
-                    distance / gutter
+                    { x : (P2.x - x) / gutter, y : (y - P2.y) / gutter },
+                    { x : (P1.x - x) / gutter, y : (y - P1.y) / gutter },
+                    D / gutter
                 ]
+            }
+
+            if (type.value[0] === "InEllipse") {
+                let { x, y, gutter } = descartes;
+                let aPoint = {
+                    x : x + inEllipseArgs.a.x * gutter,
+                    y : y - inEllipseArgs.a.y * gutter
+                }
+                let output = Circle.InEllipse(aPoint, descartes, inEllipseArgs.saxis * gutter, inEllipseArgs.laxis * gutter);
+                let { points } = Circle.GenerateEllipse(descartes, inEllipseArgs.laxis * gutter, inEllipseArgs.saxis * gutter, 30, 0);
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0 , 2  * Math.PI);
+                points.forEach((it) => {
+                    ctx?.moveTo(it.x, it.y);
+                    ctx?.arc(it.x, it.y, 5, 0 , 2 * Math.PI);
+                })
+                ctx.fill();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                ctx.strokeStyle = "blue";
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2  * Math.PI);
+                ctx.fillText(output < 1 ? "圆内" : output === 1 ? "圆边界" : output > 1  ? "圆外" : "飞出宇宙?", aPoint.x + 10, aPoint.y + 10);
+                ctx.fill();
+                ctx.closePath();
+                inEllipseArgs.output = output;
+            }
+
+            if (type.value[0] === "EllipseFocusRadius") {
+                let { x, y, gutter } = descartes;
+                let { points }  = Circle.GenerateEllipse(descartes, ellipseFocusRadiusArgs.laxis * gutter, ellipseFocusRadiusArgs.saxis * gutter, 50);
+                let aPoint = Circle.EllipseAnyAngleXY(descartes, ellipseFocusRadiusArgs.laxis * gutter, ellipseFocusRadiusArgs.saxis * gutter, ellipseFocusRadiusArgs.angle);
+                let { PF1, PF2 } = Circle.EllipseFocus(descartes, ellipseFocusRadiusArgs.saxis * gutter, ellipseFocusRadiusArgs.laxis * gutter);
+                let { MR1, MR2 } = Circle.EllipseFocusRadius(aPoint, descartes, ellipseFocusRadiusArgs.saxis * gutter, ellipseFocusRadiusArgs.laxis * gutter);
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0 , 2  * Math.PI);
+                ctx.moveTo(PF1.x, PF1.y);
+                ctx.arc(PF1.x, PF1.y, 5, 0 , 2 * Math.PI);
+                ctx.moveTo(PF2.x, PF2.y);
+                ctx.arc(PF2.x, PF2.y, 5, 0 , 2 * Math.PI);
+                points.forEach((it) => {
+                    ctx?.moveTo(it.x, it.y);
+                    ctx?.arc(it.x, it.y, 5, 0, 2  * Math.PI);
+                })
+                ctx.fillText("PF1", PF1.x - 10, PF1.y + 10);
+                ctx.fillText("PF2", PF2.x - 10, PF2.y + 10);
+                ctx.fill();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                ctx.strokeStyle = "blue";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.lineWidth = 2;
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2  * Math.PI);
+                ctx.fill();
+                ctx.moveTo(PF1.x, PF1.y);
+                ctx.lineTo(aPoint.x, aPoint.y);
+                ctx.moveTo(PF2.x, PF2.y);
+                ctx.lineTo(aPoint.x, aPoint.y);
+                let p = { x : (aPoint.x + PF1.x) / 2, y : (aPoint.y + PF1.y) / 2 };
+                ctx.moveTo(p.x, p.y);
+                ctx.fillText(`MR1: ${Math.ceil(MR1 / gutter * 100) / 100}`, p.x, p.y);
+                p = { x: (aPoint.x + PF2.x) / 2, y : (aPoint.y + PF2.y) / 2 };
+                ctx.moveTo(p.x, p.y);
+                ctx.fillText(`MR2:${Math.ceil(MR2 / gutter * 100) / 100}`,p.x, p.y);
+                ctx.stroke();
+                ctx.closePath();
+                ellipseFocusRadiusArgs.output = [MR1 / gutter, MR2 / gutter];
             }
         }
 
@@ -439,6 +516,41 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(ellipseFocusShortStringsArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="点与椭圆位置关系" key="InEllipse">
+                            <acro-form model={inEllipseArgs} layout="vertical">
+                                <acro-form-item label="长半轴">
+                                    <acro-slider v-model={ inEllipseArgs.laxis} min={0} max={ 50} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="短半轴">
+                                    <acro-slider v-model={ inEllipseArgs.saxis} min={0} max={ inEllipseArgs.laxis } step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="入参点 X坐标">
+                                    <acro-slider v-model={ inEllipseArgs.a.x} min={-20} max={ 20 } step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="入参点 Y坐标">
+                                    <acro-slider v-model={ inEllipseArgs.a.y} min={-20} max={ 20 } step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(inEllipseArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="焦半径" key="EllipseFocusRadius">
+                            <acro-form model={ellipseFocusRadiusArgs} layout="vertical">
+                                <acro-form-item label="长半轴">
+                                    <acro-slider v-model={ ellipseFocusRadiusArgs.laxis} min={0} max={ 50} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="短半轴">
+                                    <acro-slider v-model={ ellipseFocusRadiusArgs.saxis} min={0} max={ ellipseFocusRadiusArgs.laxis } step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="椭圆边界点">
+                                    <acro-slider v-model={ ellipseFocusRadiusArgs.angle} min={0} max={360 } step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(ellipseFocusRadiusArgs.output) } readonly />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
