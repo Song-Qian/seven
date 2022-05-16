@@ -22,8 +22,9 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let ellipseFocusArgs = reactive<{ laxis : number, saxis : number, rotate: number, output: [Geometry.Point, Geometry.Point] }>({ laxis: 0, saxis: 0, rotate: 0, output: [{x : 0, y: 0}, {x : 0, y: 0}]})
         let ellipseFocusShortStringsArgs = reactive<{ laxis: number, saxis: number, isRight: boolean, output: [Geometry.Point, Geometry.Point, number] }>({ laxis: 0, saxis: 0, isRight: true, output: [{ x: 0, y : 0}, { x: 0, y : 0}, 0] })
         let inEllipseArgs = reactive<{ a : Geometry.Point, o : Geometry.Point, laxis : number, saxis : number, output: number }>({ a : { x : 0, y : 0 },  o : { x : 0, y : 0 }, laxis : 0, saxis: 0, output: 0  })
-        let ellipseFocusRadiusArgs = reactive<{ angle : number, laxis : number, saxis : number, output: [number, number] }>({ angle : 0, laxis : 0, saxis: 0, output: [0, 0] });
-
+        let ellipseFocusRadiusArgs = reactive<{ angle: number, laxis: number, saxis: number, output: [number, number] }>({ angle: 0, laxis: 0, saxis: 0, output: [0, 0] });
+        let inCircleArgs = reactive<{ a :Geometry.Point, radius: number, output: number }>({ a: {x : 0, y : 0}, radius: 0, output: 0 });
+  
         let drawCircle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
             if (!ctx || !canvas.value) 
@@ -51,6 +52,34 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.fill();
                 ctx.closePath();
                 generateCircleArgs.output = output.points.map(it => ({ x : (it.x - x) / gutter, y : (y - it.y) / gutter}));
+            }
+
+            if (type.value[0] === "InCircle") { 
+                let { x, y, gutter } = descartes;
+                let point = {
+                    x : x + inCircleArgs.a.x * gutter,
+                    y : y - inCircleArgs.a.y * gutter
+                }
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                let c = Circle.GenerateCircle({ x, y }, inCircleArgs.radius * gutter, 30);
+                c.points.forEach((it) => { 
+                    ctx?.moveTo(it.x, it.y);
+                    ctx?.arc(it.x, it.y, 5, 0, 2 * Math.PI);
+                })
+                ctx.fill();
+                ctx.closePath();
+                let output = Circle.InCircle({ x, y }, point, inCircleArgs.radius * gutter);
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                ctx.moveTo(point.x, point.y);
+                ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillText(output < 0 ? "圆内" : output === 0 ? "圆上" : output === 1 ? "圆外" : "飞出宇宙", point.x + 10, point.y + 10);
+                ctx.closePath();
+                inCircleArgs.output = output;
             }
 
             if (type.value[0] === "GenerateEllipse") {
@@ -418,6 +447,22 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(generateCircleArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="点与圆关系" key="InCircle">
+                            <acro-form model={inCircleArgs} layout="vertical">
+                                <acro-form-item label="判定点 x坐标">
+                                    <acro-slider v-model={inCircleArgs.a.x} min={-20} max={ 20} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="判定点 y坐标">
+                                    <acro-slider v-model={inCircleArgs.a.y} min={-20} max={ 20} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="圆半径">
+                                    <acro-slider v-model={inCircleArgs.radius} min={0} max={ 20} step={ 1 } onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(inCircleArgs.output) } readonly />
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>

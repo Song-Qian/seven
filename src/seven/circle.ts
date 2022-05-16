@@ -21,6 +21,20 @@ export const GenerateCircle = (o : Point, radius: number, size : number = 100) :
 }
 
 /**
+ * @Author: SongQian
+ * @Date: 2022/05/16 15:38
+ * @description: 判定点与圆的位置关系
+ * @param {Point} 圆心
+ * @param {Point} 判定点
+ * @param {number} 半径
+ * @return {*} 返回点与圆的关系， -1 圆内, 0 圆上, 1 圆外， 999 飞出宇宙。
+ */
+export const InCircle = (o: Point, p: Point, radius: number): number => { 
+    const m = Math.sqrt(Math.pow(p.x - o.x, 2) + Math.pow(p.y - o.y, 2))
+    return m < radius ? -1 : m === radius ? 0 : m > radius ? 1 : 999;
+}
+
+/**
  * @LastEditors: SongQian
  * @Author: SongQian
  * @Date: 2022/04/28 11:57
@@ -143,6 +157,16 @@ export const EllipseFocusShortStrings = (o : Point, saxis : number, laxis : numb
     }
 }
 
+/**
+ * @LastEditors: SongQian
+ * @Date: 2022/05/16 17:05
+ * @description: 获取椭圆的焦半径
+ * @param {Point} 椭圆上某一个点
+ * @param {Point} 圆心
+ * @param {number} 短轴
+ * @param {number} 长轴
+ * @return {*} 返回椭圆焦点半径长度
+ */
 export const EllipseFocusRadius = (a : Point, o : Point, saxis: number, laxis : number) : Circle => {
     [saxis, laxis] = laxis < saxis ? [laxis, saxis] : [saxis, laxis];
     // a > b > 0, a > c > 0;
