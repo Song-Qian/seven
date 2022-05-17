@@ -23,7 +23,8 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let ellipseFocusShortStringsArgs = reactive<{ laxis: number, saxis: number, isRight: boolean, output: [Geometry.Point, Geometry.Point, number] }>({ laxis: 0, saxis: 0, isRight: true, output: [{ x: 0, y : 0}, { x: 0, y : 0}, 0] })
         let inEllipseArgs = reactive<{ a : Geometry.Point, o : Geometry.Point, laxis : number, saxis : number, output: number }>({ a : { x : 0, y : 0 },  o : { x : 0, y : 0 }, laxis : 0, saxis: 0, output: 0  })
         let ellipseFocusRadiusArgs = reactive<{ angle: number, laxis: number, saxis: number, output: [number, number] }>({ angle: 0, laxis: 0, saxis: 0, output: [0, 0] });
-        let inCircleArgs = reactive<{ a :Geometry.Point, radius: number, output: number }>({ a: {x : 0, y : 0}, radius: 0, output: 0 });
+        let inCircleArgs = reactive<{ a: Geometry.Point, radius: number, output: number }>({ a: { x: 0, y: 0 }, radius: 0, output: 0 });
+        let isIntersectCircleArgs = reactive<{ a: Geometry.Point, b: Geometry.Point, radius: number, output: Partial<[number, Geometry.Point, Geometry.Point]> }>({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, radius: 0, output: [] });
   
         let drawCircle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -80,6 +81,69 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.fillText(output < 0 ? "圆内" : output === 0 ? "圆上" : output === 1 ? "圆外" : "飞出宇宙", point.x + 10, point.y + 10);
                 ctx.closePath();
                 inCircleArgs.output = output;
+            }
+
+            if (type.value[0] === "IsIntersectCircle") { 
+                let { x, y, gutter } = descartes;
+                let aPoint = {
+                    x : x + isIntersectCircleArgs.a.x * gutter,
+                    y : y - isIntersectCircleArgs.a.y * gutter
+                }
+
+                let bPoint = {
+                    x : x + isIntersectCircleArgs.b.x * gutter,
+                    y : y - isIntersectCircleArgs.b.y * gutter
+                }
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.lineWidth = 2;
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2 * Math.PI);
+                ctx.moveTo(bPoint.x, bPoint.y);
+                ctx.arc(bPoint.x, bPoint.y, 5, 0, 2 * Math.PI);
+                ctx.moveTo(x, y);
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                let circle = Circle.GenerateCircle({ x, y }, isIntersectCircleArgs.radius * gutter, 30);
+                circle.points.forEach((it) => { 
+                    ctx?.moveTo(it.x, it.y);
+                    ctx?.arc(it.x, it.y, 5, 0, 2 * Math.PI);
+                })
+                ctx.fill();
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.lineTo(bPoint.x, bPoint.y);
+                ctx.stroke();
+                ctx.closePath();
+                const [isIntersect = -1, ia, ib] = Circle.IsIntersectCircle(aPoint, bPoint, { x, y }, isIntersectCircleArgs.radius * gutter);
+                ctx.beginPath();
+                ctx.fillStyle = "blue";
+                ctx.strokeStyle = "blue";
+                if (isIntersect > 0) {
+                    let x1 = ia?.x || 0;
+                    let x2 = ib?.x || 0;
+                    let y1 = ia?.y || 0;
+                    let y2 = ib?.y || 0;
+                    ctx.moveTo(x1, y1);
+                    ctx.arc(x1, y1, 5, 0, 2 * Math.PI);
+                    ctx.moveTo(x2, y2);
+                    ctx.arc(x2, y2, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.fillText("相交", (x1 + x2) / 2, (y1 + y2) / 2);
+                } else if (isIntersect == 0) {
+                    ctx.moveTo(ia?.x || 0, ia?.y || 0);
+                    ctx.arc(ia?.x || 0, ia?.y || 0, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.fillText("相切", (ia?.x || 0) + 10, (ia?.y || 0) + 10);
+                } else { 
+                    ctx.moveTo((aPoint.x + bPoint.x) / 2, (aPoint.y + bPoint.y) / 2);
+                    ctx.arc((aPoint.x + bPoint.x) / 2, (aPoint.y + bPoint.y) / 2, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.fillText("相离", (aPoint.x + bPoint.x) / 2, (aPoint.y + bPoint.y) / 2);
+                    ctx.closePath();
+                }
+                isIntersectCircleArgs.output = [isIntersect, ia, ib];
             }
 
             if (type.value[0] === "GenerateEllipse") {
@@ -463,6 +527,28 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(inCircleArgs.output) } readonly />
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="线段与圆关系" key="IsIntersectCircle">
+                            <acro-form model={isIntersectCircleArgs} layout="vertical">
+                                <acro-form-item label="线段点Ax坐标">
+                                    <acro-slider v-model={isIntersectCircleArgs.a.x} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="线段点Ay坐标">
+                                    <acro-slider v-model={isIntersectCircleArgs.a.y} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="线段点Bx坐标">
+                                    <acro-slider v-model={isIntersectCircleArgs.b.x} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="线段点By坐标">
+                                    <acro-slider v-model={isIntersectCircleArgs.b.y} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="圆半径">
+                                    <acro-slider v-model={isIntersectCircleArgs.radius} min={0} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(isIntersectCircleArgs.output) } readonly/>
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>

@@ -4,11 +4,12 @@
  * @Description: 圆特性算法
  * @eMail: onlylove1172559463@vip.qq.com
  */
-import { Circle, Point } from "./declare"
-import { AnyAnglePoint } from "./point"
+import { Circle, Point, Line } from "./declare"
+import { AnyAnglePoint, Distance } from "./point"
 
 /**
  * @Author: SongQian
+ * @Date: 2022/05/16 15:38
  * @description:  获取一个圆上所有点
  * @param {Point} 圆心
  * @param {number} 半径
@@ -22,7 +23,7 @@ export const GenerateCircle = (o : Point, radius: number, size : number = 100) :
 
 /**
  * @Author: SongQian
- * @Date: 2022/05/16 15:38
+ * @Date: 2022/04/28 11:57
  * @description: 判定点与圆的位置关系
  * @param {Point} 圆心
  * @param {Point} 判定点
@@ -32,6 +33,63 @@ export const GenerateCircle = (o : Point, radius: number, size : number = 100) :
 export const InCircle = (o: Point, p: Point, radius: number): number => { 
     const m = Math.sqrt(Math.pow(p.x - o.x, 2) + Math.pow(p.y - o.y, 2))
     return m < radius ? -1 : m === radius ? 0 : m > radius ? 1 : 999;
+}
+
+/**
+ * @LastEditors: SongQian
+ * @Author: SongQian
+ * @Date: 2022/05/17 09:45
+ * @description: 判定圆与直线是否相交，并获取交点位置
+ * @param {Point} 线段起点
+ * @param {Point} 线段终点
+ * @param {Point} 圆点
+ * @param {number} 圆半径
+ * @return {*} 返回圆与直线关系和交点位置，[1 相交 0 相切 -1 相离, 交点1或切点, 交点2]
+ */
+export const IsIntersectCircle = (start: Point, end : Point, o: Point, radius: number): Partial<[number, Point, Point]> => { 
+    //y1 = k * x1 + b => k = (y1 - b) / x1
+    //y2 = k * x2 + b => y2 = ((y1 - b) / x1) * x2 + b
+    const k = (start.y - end.y) / (start.x - end.x);
+    const b = (start.x * end.y - end.x * start.y) / (start.x - end.x);
+    let ax = 1 + Math.pow(k, 2);
+    let bx = 2 * k * (b - o.y) - 2 * o.x;
+    let cx = Math.pow(o.x, 2) + Math.pow(b - o.y, 2) - Math.pow(radius, 2);
+    //ax^2 + bx + c = 0;
+    let solve = Math.pow(bx, 2) - 4 * ax * cx;
+    if (solve > 0) { 
+        let x1 = (-bx + Math.sqrt(solve)) / (2 * ax);
+        let x2 = (-bx - Math.sqrt(solve)) / (2 * ax);
+        return [
+            1,
+            { x: x1, y: k * x1 + b },
+            { x: x2, y: k * x2 + b }
+        ]
+    }
+
+    if (solve == 0) { 
+        let x = -bx / (2 * ax);
+        return [
+            0,
+            { x, y : k * x + b }
+        ]
+    }
+    return [-1];
+}
+
+/**
+ * @LastEditors: SongQian
+ * @Author: SongQian
+ * @Date: 2022/05/17 11:37
+ * @description: 判断圆与圆之间的关系
+ * @param {Point} A圆圆心
+ * @param {Point} B圆圆心
+ * @param {Point} A圆半径
+ * @param {Point} B圆半径
+ * @return {*} 返回圆关系值 1 外离, 2 外切, 3 内切, 4 内含, 5 相交, -1 非法关系
+ */
+export const IsCircleInCircle = (ao: Point, bo: Point, ar: number, br: number): number => {
+    const d = Distance(ao, bo);
+    return ar + br < d ? 1 : ar + br == d ? 2 : ar - br == d ? 3 : Math.max(ar, br) - Math.min(ar, br) > d ? 4 : ar + br > d ? 5 : -1;
 }
 
 /**
