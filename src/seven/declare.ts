@@ -36,9 +36,9 @@ export type Circle = {
     //左侧焦点 
     PF2 : Point
     //焦半径 右侧
-    MR1 : number,
+    MR1 : number
     //焦半径 左侧
-    MR2 : number,
+    MR2 : number
     //通径位置或者椭圆内线段A
     P1 : Point
     //通径位置或者椭圆内线段B
@@ -49,4 +49,14 @@ export type Circle = {
     E : number
     //线段之间的距离
     D: number
+}
+
+/**
+ * @Author: SongQian
+ * @description: 三角函数
+ */
+export type Triangle = {
+    a: Point
+    b: Point
+    c: Point
 }

@@ -25,6 +25,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let ellipseFocusRadiusArgs = reactive<{ angle: number, laxis: number, saxis: number, output: [number, number] }>({ angle: 0, laxis: 0, saxis: 0, output: [0, 0] });
         let inCircleArgs = reactive<{ a: Geometry.Point, radius: number, output: number }>({ a: { x: 0, y: 0 }, radius: 0, output: 0 });
         let isIntersectCircleArgs = reactive<{ a: Geometry.Point, b: Geometry.Point, radius: number, output: Partial<[number, Geometry.Point, Geometry.Point]> }>({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, radius: 0, output: [] });
+        let isCircleInCircleArgs = reactive<{ a: Geometry.Point, b: Geometry.Point, ar: number, br: number, output: number }>({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, ar: 0, br: 0, output: -1 });
   
         let drawCircle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -144,6 +145,45 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                     ctx.closePath();
                 }
                 isIntersectCircleArgs.output = [isIntersect, ia, ib];
+            }
+
+            if (type.value[0] === "IsCircleInCircle") { 
+                let { x, y, gutter } = descartes;
+                let aPoint = {
+                    x : x + isCircleInCircleArgs.a.x * gutter,
+                    y : y - isCircleInCircleArgs.a.y * gutter
+                }
+
+                let bPoint = {
+                    x : x + isCircleInCircleArgs.b.x * gutter,
+                    y : y - isCircleInCircleArgs.b.y * gutter
+                }
+
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.lineWidth = 2;
+                ctx.moveTo(aPoint.x, aPoint.y);
+                ctx.arc(aPoint.x, aPoint.y, 5, 0, 2 * Math.PI);
+                ctx.moveTo(bPoint.x, bPoint.y);
+                ctx.arc(bPoint.x, bPoint.y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                let arcTo = Point.AnyAnglePoint(aPoint, 0, isCircleInCircleArgs.ar * gutter);
+                ctx.moveTo(arcTo.x, arcTo.y);
+                ctx.arc(aPoint.x, aPoint.y, isCircleInCircleArgs.ar * gutter, 0, 2 * Math.PI);
+                arcTo = Point.AnyAnglePoint(bPoint, 0, isCircleInCircleArgs.br * gutter);
+                ctx.moveTo(arcTo.x, arcTo.y);
+                ctx.arc(bPoint.x, bPoint.y, isCircleInCircleArgs.br * gutter, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.closePath();
+                let output = Circle.IsCircleInCircle(aPoint, bPoint, isCircleInCircleArgs.ar * gutter, isCircleInCircleArgs.br * gutter);
+                ctx.fillStyle = "blue";
+                let text = output === 1 ? "外离" : output === 2 ? "外切" : output === 3 ? "内切" : output === 4 ? "内含" : output === 5 ? "相交" : "非法关系";
+                ctx.fillText(text, aPoint.x + 10, aPoint.y + 10);
+                ctx.fillText(text, bPoint.x + 10, bPoint.y + 10);
+                isCircleInCircleArgs.output = output;
             }
 
             if (type.value[0] === "GenerateEllipse") {
@@ -549,6 +589,31 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(isIntersectCircleArgs.output) } readonly/>
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="圆与圆关系" key="IsCircleInCircle">
+                            <acro-form model={isCircleInCircleArgs} layout="vertical">
+                                <acro-form-item label="A圆圆心x坐标">
+                                    <acro-slider v-model={isCircleInCircleArgs.a.x} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="A圆圆心y坐标">
+                                    <acro-slider v-model={isCircleInCircleArgs.a.y} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="B圆圆心x坐标">
+                                    <acro-slider v-model={isCircleInCircleArgs.b.x} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="B圆圆心y坐标">
+                                    <acro-slider v-model={isCircleInCircleArgs.b.y} min={-20} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="A圆半径">
+                                    <acro-slider v-model={isCircleInCircleArgs.ar} min={0} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="B圆半径">
+                                    <acro-slider v-model={isCircleInCircleArgs.br} min={0} max={20} step={1} onChange={drawCircle} />
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(isCircleInCircleArgs.output) } readonly/>
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>

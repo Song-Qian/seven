@@ -1,15 +1,23 @@
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/05/18 09:29
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: Seven Examples
+ */
 import { createApp, render, ref } from 'vue'
 import acro from '@arco-design/web-vue'
 import PointExamples from  "~/examples/point"
 import LineExamples from "~/examples/line"
 import CircleExamples from "~/examples/circle"
+import TriangleExamples from "~/examples/triangle"
 
 import "~/assets/styles/index"
 import '@arco-design/web-vue/dist/arco.css'
 
 //初始化根实例
 const app = createApp({
-    components: { PointExamples, LineExamples, CircleExamples },
+    components: { PointExamples, LineExamples, CircleExamples, TriangleExamples },
     setup(): typeof render {
         let collapsed = ref<boolean>(false);
         let menukey = ref<Array<string>>(["Point"]);
@@ -21,8 +29,6 @@ const app = createApp({
                             <acro-menu-item key="Point">点运算</acro-menu-item>
                             <acro-menu-item key="Line">线运算</acro-menu-item>
                             <acro-menu-item key="Circle">圆运算</acro-menu-item>
-                            <acro-menu-item key="Arc">弧运算</acro-menu-item>
-                            <acro-menu-item key="Rect">矩形运算</acro-menu-item>
                             <acro-menu-item key="Triangle">三角运算</acro-menu-item>
                         </acro-sub-menu>
                         <acro-sub-menu title={"二维物理"}>
@@ -40,6 +46,7 @@ const app = createApp({
                         menukey.value[0] === "Point" ? <point-examples></point-examples> : 
                         menukey.value[0] === "Line" ? <line-examples></line-examples> :
                         menukey.value[0] === "Circle" ? <circle-examples></circle-examples> :
+                        menukey.value[0] === "Triangle" ? <triangle-examples></triangle-examples> :
                         null
                     }
                 </acro-layout-content>
