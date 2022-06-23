@@ -6,11 +6,12 @@
         "strict": true,
         "jsx": "preserve",
         "baseUrl" : ".",
-        "sourceMap" : true,
+        "sourceMap" : false,
         "moduleResolution": "node",
         "lib": ["dom", "ES2015", "ESNext"],
         "stripInternal": true,
-        "declaration": false,
+        "declaration": true,
+        "declarationDir": "./typings",
         "rootDir" : "./src",
         "outDir" : "./dist",
         "removeComments": true,
@@ -24,5 +25,8 @@
     "include": [
       "src/**/*.ts",
       "src/**/*.tsx",
+    ],
+    "exclude": [
+      "./typings"
     ]
   }

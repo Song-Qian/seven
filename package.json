@@ -1,6 +1,6 @@
 {
   "name": "@skysong/seven",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Seven a geometry library",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "@babel/plugin-transform-typescript": "^7.13.0",
     "@babel/preset-env": "^7.13.9",
     "@vue/babel-plugin-jsx": "^1.0.3",
+    "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-loader": "^8.2.2",
     "concurrently": "^6.5.1",
     "css-loader": "^6.4.0",
@@ -29,7 +30,8 @@
     "mini-css-extract-plugin": "^2.6.0",
     "sass": "^1.43.3",
     "sass-loader": "^7.3.1",
-    "typescript": "^4.2.2",
+    "ts-loader": "^9.2.4",
+    "typescript": "^4.3.5",
     "webpack": "^5.60.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.3.1",

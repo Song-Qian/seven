@@ -1,3 +1,10 @@
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/23 16:26
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: 这是一个魔术，来自Author创作，需要修改请留下大名~!
+ */
 /**
  * Developer    :   SongQian
  * Time         :   2019/03/09
@@ -5,16 +12,32 @@
  * Description  :   生产编译处理配置
  */
 const path = require('path');
+const tsTransformPaths = require('@zerollup/ts-transform-paths');
 
 module.exports = function(miniCssExtractPlugin) {
 
   const JS_Loader = {
-    test: /\.(js|jsx|ts|tsx)$/i,
+    test: /\.(js)$/i,
     exclude: /node_modules/,
     use: {
       loader: 'babel-loader',
       options: {
-        presets:['@babel/preset-env']
+        presets:[['@babel/preset-env', { targets : { node: "current" } }]]
+      }
+    }
+  }
+
+  const TS_Loader = {
+    test : /\.ts(x?)$/,
+    loader: 'ts-loader',
+    exclude: /node_modules/,
+    options: {
+      getCustomTransformers: (program) => {
+        const transformer = tsTransformPaths(program);
+        return {
+          before: [transformer.before],
+          afterDeclarations: [transformer.afterDeclarations]
+        };
       }
     }
   }
@@ -54,6 +77,7 @@ module.exports = function(miniCssExtractPlugin) {
 
   return [
     JS_Loader,
+    TS_Loader,
     URL_Loaer,
     SASS_Loader,
     File_Loader,
