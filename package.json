@@ -1,8 +1,9 @@
 {
   "name": "@skysong/seven",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "description": "Seven a geometry library",
   "main": "index.js",
+  "types": "./typings/seven/index.d.ts",
   "scripts": {
     "webpack:prod": "concurrently 'npm run webpack:examples' 'npm run webpack:build' 'npm run webpack:dev'",
     "webpack:examples": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.examples.js --progress",
