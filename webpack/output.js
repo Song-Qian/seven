@@ -8,11 +8,7 @@
 const path = require("path");
 
 module.exports = {
-    'publicPath' : '/',
+    'publicPath': '/',
     'libraryTarget': 'umd',
-    library: {
-        root: "seven",
-        amd: "seven",
-        commonjs: "seven"
-    }
+    'library': "seven"
 }

@@ -4,7 +4,7 @@
  * @Description: 圆特性算法
  * @eMail: onlylove1172559463@vip.qq.com
  */
-import { Circle, Point, Line } from "./declare"
+import { Circle, Point } from "./declare"
 import { AnyAnglePoint, Distance } from "./point"
 
 /**

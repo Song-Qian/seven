@@ -1,9 +1,11 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :   webpack.config 入口配置
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/24 13:25
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: webpack.config 入口配置
  */
+
 const { merge } = require('webpack-merge')
 const miniCssExtractPlugin = require('mini-css-extract-plugin')
 const entry = require("./entry")

@@ -11,13 +11,12 @@
  * eMail        :   onlylove1172559463@vip.qq.com
  * Description  :   生产编译处理配置
  */
-const path = require('path');
 const tsTransformPaths = require('@zerollup/ts-transform-paths');
 
-module.exports = function(miniCssExtractPlugin) {
-
+module.exports = function (miniCssExtractPlugin) {
+  
   const JS_Loader = {
-    test: /\.(js)$/i,
+    test: /\.(js|jsx|tsx)$/,
     exclude: /node_modules/,
     use: {
       loader: 'babel-loader',
@@ -28,7 +27,7 @@ module.exports = function(miniCssExtractPlugin) {
   }
 
   const TS_Loader = {
-    test : /\.ts(x?)$/,
+    test : /\.ts$/,
     loader: 'ts-loader',
     exclude: /node_modules/,
     options: {

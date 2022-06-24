@@ -1,8 +1,9 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :  Demo 生产入口
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/24 10:36
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: Demo 生产入口
  */
 const { merge } = require('webpack-merge')
 const path = require('path')
@@ -15,7 +16,7 @@ module.exports = merge(webpackConfig, {
     },
     output: {
         'path' : path.resolve(__dirname, '../', 'dist'),
-        filename:  'examples/[name].[hash:8].js',
+        'filename': 'examples/[name].[hash:8].js'
     },
     plugins: [
         new htmlPlugin({

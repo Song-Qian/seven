@@ -1,8 +1,9 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :   路径语法糖配置
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/24 13:50
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: 路径语法糖配置
  */
 
 var path = require("path")
