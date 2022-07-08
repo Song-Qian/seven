@@ -38,7 +38,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         body.add(ctx);
         scene.add(body);
 
-        let anyAngleArgs = reactive<{ x: number, y: number, z: number, radius: number, polar: number, angle: number, iscounterclockwise: boolean, output: Vertex3D }>({ x: 0, y: 0, z: 0, iscounterclockwise: false, polar: 0, radius: 0, angle: 0, output: { x: 0, y: 0, z: 0 } });
+        let anyAngleArgs = reactive<{ x: number, y: number, z: number, radius: number, polar: number, angle: number, matrix: [number, number, number], iscounterclockwise: boolean, output: Vertex3D }>({ x: 0, y: 0, z: 0, iscounterclockwise: false, polar: 0, radius: 0, matrix: [0,0,0], angle: 0, output: { x: 0, y: 0, z: 0 } });
         
         const updateCameraDistance = withModifiers((e: WheelEvent) => {
             if (e.deltaY < 0) { 
@@ -84,7 +84,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 let oGeometry = new SphereGeometry(10, 32, 64);
                 let nGeometry = new SphereGeometry(10, 32, 64);
                 let lineGeometry = new BufferGeometry();
-                let v = AnyAnglePoint({ x: 0, y: 0, z: 0 }, anyAngleArgs.angle, anyAngleArgs.polar, anyAngleArgs.radius * descartes.gutter, anyAngleArgs.iscounterclockwise);
+                let v = AnyAnglePoint({ x: 0, y: 0, z: 0 }, anyAngleArgs.angle, anyAngleArgs.polar, anyAngleArgs.radius * descartes.gutter, anyAngleArgs.matrix, anyAngleArgs.iscounterclockwise);
                 lineGeometry.setAttribute("position", new Float32BufferAttribute([0,0,0, v.x,v.y,v.z], 3));
                 nGeometry.translate(v.x, v.y, v.z);
                 let material = new MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
@@ -99,6 +99,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 anyAngleArgs.output.x = Number((v.x / descartes.gutter).toFixed(4));
                 anyAngleArgs.output.y = Number((v.y / descartes.gutter).toFixed(4));
                 anyAngleArgs.output.z = Number((v.z / descartes.gutter).toFixed(4));
+                axesHelper.rotation.set(anyAngleArgs.matrix[0] * Math.PI / 180, anyAngleArgs.matrix[1] * Math.PI / 180, anyAngleArgs.matrix[2] * Math.PI / 180, "XYZ")
             }
         }
 
@@ -162,6 +163,15 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="方位角">
                                     <acro-slider v-model={anyAngleArgs.angle} min={0} max={359} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="原点x旋转角">
+                                    <acro-slider v-model={anyAngleArgs.matrix[0]} min={0} max={359} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="原点y旋转角">
+                                    <acro-slider v-model={anyAngleArgs.matrix[1]} min={0} max={359} onChange={drawerPoint} />
+                                </acro-form-item>
+                                <acro-form-item label="原点z旋转角">
+                                    <acro-slider v-model={anyAngleArgs.matrix[2]} min={0} max={359} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="方向">
                                     <acro-radio-group type="button" size="small" v-model={anyAngleArgs.iscounterclockwise}>

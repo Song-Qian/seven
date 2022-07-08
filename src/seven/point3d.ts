@@ -7,11 +7,19 @@
  */
 import { Vertex3D } from './declare'
 
-export const AnyAnglePoint = (p : Vertex3D, angle : number, polar: number, r : number, counterclockwise: boolean = false) : Vertex3D => {
+export const AnyAnglePoint = (p: Vertex3D, angle: number, polar: number, r: number, matrix: [number, number, number] = [ 0, 0, 0], counterclockwise: boolean = false) : Vertex3D => {
     angle = counterclockwise ? angle : -angle;
     polar = counterclockwise ? polar : -polar;
     const x = p.x + r * Math.sin(polar * Math.PI / 180) * Math.cos(angle * Math.PI / 180);
     const y = p.y + r * Math.sin(polar * Math.PI / 180) * Math.sin(angle * Math.PI / 180);
     const z = p.z + r * Math.cos(polar * Math.PI / 180);
-    return { x, y, z };
+    //添加极心旋转计算
+    const x1 = x * (Math.cos(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180) - Math.sin(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180))
+        - y * Math.cos(matrix[0] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180)
+        + z * (Math.sin(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180) + Math.sin(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180));
+    const y1 = x * (Math.cos(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180) + Math.sin(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180))
+        + y * Math.cos(matrix[0] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180)
+        + z * (Math.sin(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180) - Math.sin(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180));
+    const z1 = x * (- Math.cos(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180)) + y * Math.sin(matrix[0] * Math.PI / 180) + z * Math.cos(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180);
+    return { x: x1, y: y1, z: z1 };
 }
