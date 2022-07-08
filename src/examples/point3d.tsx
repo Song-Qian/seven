@@ -91,7 +91,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 let material1 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
                 let material2 = new LineBasicMaterial({ color: 0x0000ff, linewidth: 2 });
                 let mesh = new Mesh(oGeometry, material);
-                let mesh1 = new Mesh(nGeometry.clone(), material1)
+                let mesh1 = new Mesh(nGeometry, material1);
                 let mesh2 = new LineSegments(lineGeometry, material2);
                 ctx.add(mesh);
                 ctx.add(mesh1);
