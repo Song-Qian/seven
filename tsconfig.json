@@ -1,33 +1,33 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "strict": true,
-        "jsx": "preserve",
-        "baseUrl" : ".",
-        "sourceMap" : false,
-        "moduleResolution": "node",
-        "lib": ["dom", "ES2015", "ESNext"],
-        "stripInternal": true,
-        "declaration": true,
-        "declarationDir": "./typings",
-        "rootDir" : "./src",
-        "outDir" : "./dist",
-        "removeComments": true,
-        "allowJs": false,
-        "paths": {
-          "~/*": [
-            "src/*"
-          ]
-        }
-    },
-    "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx",
-      "src/**/*.d.ts"
-    ],
-    "exclude": [
-      "./typings"
-    ]
-  }
+  "compileOnSave": true,
+  "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "strict": true,
+      "jsx": "preserve",
+      "baseUrl" : ".",
+      "sourceMap" : false,
+      "moduleResolution": "node",
+      "lib": ["dom", "ES2015", "ESNext"],
+      "stripInternal": true,
+      "declaration": true,
+      "declarationDir": "./typings",
+      "rootDir" : "./",
+      "outDir" : "./dist",
+      "removeComments": true,
+      "allowJs": false,
+      "paths": {
+        "~/*": [
+          "src/*"
+        ]
+      }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "./typings"
+  ]
+}

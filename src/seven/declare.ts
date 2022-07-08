@@ -60,3 +60,13 @@ export type Triangle = {
     b: Point
     c: Point
 }
+
+/**
+ * @Author: SongQian
+ * @description: 三维顶点
+ */
+export type Vertex3D  = {
+    x : number
+    y : number
+    z : number
+}
