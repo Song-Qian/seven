@@ -7,19 +7,20 @@
  */
 import { Vertex3D } from './declare'
 
-export const AnyAnglePoint = (p: Vertex3D, angle: number, polar: number, r: number, matrix: [number, number, number] = [ 0, 0, 0], counterclockwise: boolean = false) : Vertex3D => {
+export const AnyAnglePoint = (p: Vertex3D, angle: number, polar: number, r: number, m: [number, number, number] = [ 0, 0, 0], counterclockwise: boolean = false) : Vertex3D => {
     angle = counterclockwise ? angle : -angle;
     polar = counterclockwise ? polar : -polar;
-    const x = p.x + r * Math.sin(polar * Math.PI / 180) * Math.cos(angle * Math.PI / 180);
-    const y = p.y + r * Math.sin(polar * Math.PI / 180) * Math.sin(angle * Math.PI / 180);
-    const z = p.z + r * Math.cos(polar * Math.PI / 180);
+    const d = Math.PI / 180;
+    let x = r * Math.sin(polar * d) * Math.cos(angle * d);
+    let y = r * Math.sin(polar * d) * Math.sin(angle * d);
+    let z = r * Math.cos(polar * d);
     //添加极心旋转计算
-    const x1 = x * (Math.cos(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180) - Math.sin(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180))
-        - y * Math.cos(matrix[0] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180)
-        + z * (Math.sin(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180) + Math.sin(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180));
-    const y1 = x * (Math.cos(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180) + Math.sin(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180))
-        + y * Math.cos(matrix[0] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180)
-        + z * (Math.sin(matrix[1] * Math.PI / 180) * Math.sin(matrix[2] * Math.PI / 180) - Math.sin(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180) * Math.cos(matrix[2] * Math.PI / 180));
-    const z1 = x * (- Math.cos(matrix[0] * Math.PI / 180) * Math.sin(matrix[1] * Math.PI / 180)) + y * Math.sin(matrix[0] * Math.PI / 180) + z * Math.cos(matrix[0] * Math.PI / 180) * Math.cos(matrix[1] * Math.PI / 180);
-    return { x: x1, y: y1, z: z1 };
+    const z1 = x * (-Math.cos(m[0] * d) * Math.sin(m[1] * d)) + y * Math.sin(m[0] * d) + z * Math.cos(m[0] * d) * Math.cos(m[1] * d);
+    const x1 = x * (Math.cos(m[1] * d) * Math.cos(m[2] * d) - Math.sin(m[0] * d) * Math.sin(m[1] * d) * Math.sin(m[2] * d))
+        - y * Math.cos(m[0] * d) * Math.sin(m[2] * d)
+        + z * (Math.sin(m[1] * d) * Math.cos(m[2] * d) + Math.sin(m[0] * d) * Math.cos(m[1] * d) * Math.sin(m[2] * d));
+    const y1 = x * (Math.cos(m[1] * d) * Math.sin(m[2] * d) + Math.sin(m[0] * d) * Math.sin(m[1] * d) * Math.cos(m[2] * d))
+        + y * Math.cos(m[0] * d) * Math.cos(m[2] * d)
+        + z * (Math.sin(m[1] * d) * Math.sin(m[2] * d) - Math.sin(m[0] * d) * Math.cos(m[1] * d) * Math.cos(m[2] * d));
+    return { x: p.x + x1, y: p.y + y1, z: p.z + z1 };
 }
