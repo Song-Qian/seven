@@ -84,8 +84,8 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 let oGeometry = new SphereGeometry(10, 32, 64);
                 let nGeometry = new SphereGeometry(10, 32, 64);
                 let lineGeometry = new BufferGeometry();
-                let v = AnyAnglePoint({ x: -7, y: -164.01765151645546, z: 12.377669808478963 }, anyAngleArgs.angle, anyAngleArgs.polar, anyAngleArgs.radius * descartes.gutter, anyAngleArgs.matrix, anyAngleArgs.iscounterclockwise);
-                lineGeometry.setAttribute("position", new Float32BufferAttribute([-7,-164.01765151645546,12.377669808478963, v.x,v.y,v.z], 3));
+                let v = AnyAnglePoint({ x: 0, y: 0, z: 0 }, anyAngleArgs.angle, anyAngleArgs.polar, anyAngleArgs.radius * descartes.gutter, anyAngleArgs.matrix, anyAngleArgs.iscounterclockwise);
+                lineGeometry.setAttribute("position", new Float32BufferAttribute([0,0,0, v.x,v.y,v.z], 3));
                 nGeometry.translate(v.x, v.y, v.z);
                 let material = new MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
                 let material1 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
