@@ -1,6 +1,6 @@
 {
   "name": "@skysong/seven",
-  "version": "0.0.12",
+  "version": "0.0.18",
   "description": "Seven a geometry library",
   "main": "index.js",
   "types": "./typings/src/seven/index.d.ts",

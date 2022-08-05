@@ -1,24 +1,28 @@
 /*
  * @Author: SongQian
  * @LastEditors: SongQian
- * @Date: 2022/07/07 10:01
+ * @Date: 2022/08/02 13:48
  * @eMail: onlylove117225594632vip.qq.com
- * @Description: 三维点运算案例
+ * @Description: 这是一个魔术，来自Author创作，需要修改请留下大名~!
  */
 import { defineComponent, ComponentOptionsWithoutProps, SetupContext, render, onMounted, ref, reactive, withModifiers } from 'vue'
-import { Scene, Object3D, PerspectiveCamera, AxesHelper, WebGLRenderer, sRGBEncoding, Color, LineBasicMaterial, BoxHelper, BoxGeometry, BufferGeometry, SphereGeometry, Float32BufferAttribute, LineSegments, MeshBasicMaterial, Mesh } from 'three'
-import * as THREE from 'three'
-import { AnyAnglePoint } from '~/seven/point3d'
+import { Scene, Object3D, PerspectiveCamera, AxesHelper, WebGLRenderer, sRGBEncoding, Color, LineBasicMaterial, BoxHelper, BoxGeometry, BufferGeometry, SphereGeometry, Float32BufferAttribute, LineSegments, PointsMaterial, Points, Mesh, Line, MeshBasicMaterial } from 'three'
+import * as THREE from "three"
+import { Vertex3D } from "~/seven/declare"
+import { Delaunay3d } from "~/seven/delaunay"
 
 type Props = {}
 
 export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
-    name: 'Point3dExamples',
-    setup(props: Readonly<Props>, { emit, slots, attrs }: SetupContext): typeof render { 
+    name: "PointCloudExamples",
+    setup(props: Readonly<Props>, { emit, attrs, slots }: SetupContext): typeof render { 
+        
         let type = ref<string[]>(["SymmetryPoint"])
         let canvas  = ref<HTMLDivElement>();
         let descartes = reactive<{ x: number, y: number, gutter: number }>({ x: 0, y: 0, gutter: 60 });
         let state = reactive({ isMove: false, move: { x: 0, y: 0, rx: 0, ry: 0 } });
+        let delaunayArgs = reactive<{ points: Array<Vertex3D>, ver: Vertex3D, total: number, output: Array<any> }>({ points: [], ver: { x: 0, y: 0, z: 0 }, total: 3, output: [] });
+        
         let scene = new Scene();
         scene.background = new Color(0x000);
         let body = new Object3D();
@@ -37,8 +41,48 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         body.add(ctx);
         scene.add(body);
 
-        let anyAngleArgs = reactive<{ x: number, y: number, z: number, radius: number, polar: number, angle: number, matrix: [number, number, number], iscounterclockwise: boolean, output: { x: number, y: number, z: number} }>({ x: 0, y: 0, z: 0, iscounterclockwise: false, polar: 0, radius: 0, matrix: [0,0,0], angle: 0, output: { x: 0, y: 0, z: 0 } });
-        
+        let drawerPoint = () => {
+            ctx.clear();
+            if (type.value[0] === 'ConcaveHull') { 
+                let { gutter } = descartes;
+                let geometry = new BufferGeometry();
+                let verGeometry = new SphereGeometry(10, 32, 64);
+                geometry.setAttribute("position", new Float32BufferAttribute(delaunayArgs.points.map(it => [it.x, it.y, it.z]).flat(2), 3));
+                verGeometry.translate(delaunayArgs.ver.x * gutter, delaunayArgs.ver.y * gutter, delaunayArgs.ver.z * gutter);
+                let material = new PointsMaterial({ color: 0xff0000, size: 5, sizeAttenuation: false });
+                let mesh = new Points(geometry, material);
+                let m1 = new MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+                let mesh2 = new Mesh(verGeometry, m1);
+                ctx.add(mesh);
+                ctx.add(mesh2);
+                let tetrahedron = Delaunay3d(delaunayArgs.points, { x: delaunayArgs.ver.x * gutter, y: delaunayArgs.ver.y * gutter, z: delaunayArgs.ver.z * gutter });
+                for (let i = 0, len = tetrahedron.length; i < len; i++) { 
+                    let t = tetrahedron[i];
+                    let tGeometry = new BufferGeometry();
+                    let tetrahedronVertex = [
+                        t.e1?.a.x || 0, t.e1?.a.y || 0, t.e1?.a.z || 0,
+                        t.e1?.b.x || 0, t.e1?.b.y || 0, t.e1?.b.z || 0,
+                        t.e1?.c.x || 0, t.e1?.c.y || 0, t.e1?.c.z || 0,
+                        
+                        t.e2?.a.x || 0, t.e2?.a.y || 0, t.e2?.a.z || 0,
+                        t.e2?.b.x || 0, t.e2?.b.y || 0, t.e2?.b.z || 0,
+                        t.e2?.c.x || 0, t.e2?.c.y || 0, t.e2?.c.z || 0,
+                        
+                        t.e3?.a.x || 0, t.e3?.a.y || 0, t.e3?.a.z || 0,
+                        t.e3?.b.x || 0, t.e3?.b.y || 0, t.e3?.b.z || 0,
+                        t.e3?.c.x || 0, t.e3?.c.y || 0, t.e3?.c.z || 0,
+    
+                        t.e4?.a.x || 0, t.e4?.a.y || 0, t.e4?.a.z || 0,
+                        t.e4?.b.x || 0, t.e4?.b.y || 0, t.e4?.b.z || 0,
+                        t.e4?.c.x || 0, t.e4?.c.y || 0, t.e4?.c.z || 0
+                    ];
+                    tGeometry.setAttribute("position", new Float32BufferAttribute(tetrahedronVertex, 3));
+                    let m2 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide, opacity: 0.3, transparent: true });
+                    ctx.add(new Mesh(tGeometry, m2));
+                }
+            }
+        }
+
         const updateCameraDistance = withModifiers((e: WheelEvent) => {
             if (e.deltaY < 0) { 
                 camera.position.z-=10;
@@ -76,31 +120,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 body.rotation.set(state.move.rx + (x * d), state.move.ry + (y * d), 0, "XYZ");
             }
         }, ["capture", "stop", "prevent"])
-
-        let drawerPoint = (e : MouseEvent) => {
-            if (type.value[0] === 'AnyAnglePoint') { 
-                ctx.clear();
-                let oGeometry = new SphereGeometry(10, 32, 64);
-                let nGeometry = new SphereGeometry(10, 32, 64);
-                let lineGeometry = new BufferGeometry();
-                let v = AnyAnglePoint(Object.create({ x: 0, y: 0, z: 0 }), anyAngleArgs.angle, anyAngleArgs.polar, anyAngleArgs.radius * descartes.gutter, anyAngleArgs.matrix, anyAngleArgs.iscounterclockwise);
-                lineGeometry.setAttribute("position", new Float32BufferAttribute([0,0,0, v.x,v.y,v.z], 3));
-                nGeometry.translate(v.x, v.y, v.z);
-                let material = new MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-                let material1 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
-                let material2 = new LineBasicMaterial({ color: 0x0000ff, linewidth: 2 });
-                let mesh = new Mesh(oGeometry, material);
-                let mesh1 = new Mesh(nGeometry, material1);
-                let mesh2 = new LineSegments(lineGeometry, material2);
-                ctx.add(mesh);
-                ctx.add(mesh1);
-                ctx.add(mesh2);
-                anyAngleArgs.output.x = Number((v.x / descartes.gutter).toFixed(4));
-                anyAngleArgs.output.y = Number((v.y / descartes.gutter).toFixed(4));
-                anyAngleArgs.output.z = Number((v.z / descartes.gutter).toFixed(4));
-                axesHelper.rotation.set(anyAngleArgs.matrix[0] * Math.PI / 180, anyAngleArgs.matrix[1] * Math.PI / 180, anyAngleArgs.matrix[2] * Math.PI / 180, "XYZ")
-            }
-        }
+        
 
         let ResetSymmetryBase = () => {
             if (!canvas.value) {
@@ -132,6 +152,16 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
             requestAnimationFrame(refresh);
         }
 
+        let RoundDelaunayPoint = (e: MouseEvent) => {
+            if (type.value[0] === "ConcaveHull") { 
+                let { gutter } = descartes;
+                delaunayArgs.points = [];
+                for (let i = 0; i < delaunayArgs.total; i++)
+                    delaunayArgs.points.push({ x: -600 + gutter * 20 * Math.random(), y: -600 + gutter * 20 * Math.random(), z: -600 + gutter * 20 * Math.random() });
+                drawerPoint();
+            }
+        }
+
         onMounted(() => {
             ResetSymmetryBase();
             window.onresize = () => { 
@@ -149,37 +179,24 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 <div class="drawer-wapper" ref={canvas} onWheel={updateCameraDistance} onMousemove={updateSceneRotate} onMousedown={updateSceneRotate} onMouseup={updateSceneRotate} onMouseleave={updateSceneRotate}></div>
                 <div class="drawer-args">
                     <acro-collapse v-model={[type.value, "active-key"]} accordion>
-                        <acro-collapse-item header="任意角" key="AnyAnglePoint">
-                            <acro-form model={anyAngleArgs} layout="vertical">
-                                <acro-form-item label="原点">
-                                    <acro-input model-value={JSON.stringify({ x: 0, y: 0, z: 0 })} readonly></acro-input>
+                        <acro-collapse-item header="凹包点云" key="ConcaveHull">
+                            <acro-form model={delaunayArgs} layout="vertical">
+                                <acro-form-item label="数量">
+                                    <acro-slider v-model={delaunayArgs.total} min={3} max={300} step={1} />
                                 </acro-form-item>
-                                <acro-form-item label="半径">
-                                    <acro-slider v-model={anyAngleArgs.radius} min={0} max={20} onChange={drawerPoint} />
+                                <acro-form-item label="X">
+                                    <acro-slider v-model={delaunayArgs.ver.x} min={-10} max={10} step={1} onChange={drawerPoint} />
                                 </acro-form-item>
-                                <acro-form-item label="极角">
-                                    <acro-slider v-model={anyAngleArgs.polar} min={0} max={359} onChange={drawerPoint} />
+                                <acro-form-item label="Y">
+                                    <acro-slider v-model={delaunayArgs.ver.y} min={-10} max={10} step={1} onChange={drawerPoint} />
                                 </acro-form-item>
-                                <acro-form-item label="方位角">
-                                    <acro-slider v-model={anyAngleArgs.angle} min={0} max={359} onChange={drawerPoint} />
+                                <acro-form-item label="Z">
+                                    <acro-slider v-model={delaunayArgs.ver.z} min={-10} max={10} step={1} onChange={drawerPoint} />
                                 </acro-form-item>
-                                <acro-form-item label="原点x旋转角">
-                                    <acro-slider v-model={anyAngleArgs.matrix[0]} min={0} max={359} onChange={drawerPoint} />
-                                </acro-form-item>
-                                <acro-form-item label="原点y旋转角">
-                                    <acro-slider v-model={anyAngleArgs.matrix[1]} min={0} max={359} onChange={drawerPoint} />
-                                </acro-form-item>
-                                <acro-form-item label="原点z旋转角">
-                                    <acro-slider v-model={anyAngleArgs.matrix[2]} min={0} max={359} onChange={drawerPoint} />
-                                </acro-form-item>
-                                <acro-form-item label="方向">
-                                    <acro-radio-group type="button" size="small" v-model={anyAngleArgs.iscounterclockwise}>
-                                        <acro-radio value={false}>顺时针</acro-radio>
-                                        <acro-radio value={true}>逆时针</acro-radio>
-                                    </acro-radio-group>
-                                </acro-form-item>
-                                <acro-form-item label="输出结果">
-                                    <acro-textarea model-value={ JSON.stringify(anyAngleArgs.output) } readonly />
+                                <acro-form-item label="操作">
+                                    <acro-space size="mini">
+                                        <acro-button type="primary" size="small" onClick={ RoundDelaunayPoint }>随机</acro-button>
+                                    </acro-space>
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>

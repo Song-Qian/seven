@@ -5,10 +5,11 @@
  * @eMail: onlylove117225594632vip.qq.com
  * @Description: 三角函数扩展图形功能展示
  */
-import { defineComponent, ComponentPropsOptions, render, SetupContext, ref, reactive, onMounted } from "vue"
+import { defineComponent, ComponentPropsOptions, render, SetupContext, ref, reactive, onMounted, withModifiers } from "vue"
 import * as Geometry from "~/seven/declare"
 import * as Triangle from "~/seven/triangle"
 import * as Point from "~/seven/point"
+import * as Delaunay from "~/seven/delaunay"
 
 
 type Props = {}
@@ -22,6 +23,7 @@ export default defineComponent<ComponentPropsOptions<Props>, any, any>({
         let sideLengthArgs = reactive<{ a: Geometry.Point, b: Geometry.Point, output: number }>({ a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, output: 0 })
         let rightAngleHypotenuseArgs = reactive<{ a: number, b: number, output: number }>({ a: 0, b: 0, output: 0 });
         let rightAngleSideArgs = reactive<{ type: 0 | 1, a: Geometry.Point, b: Geometry.Point, output: number }>({ type: 0, a: { x: 0, y: 0 }, b: { x: 0, y: 0 }, output: 0 });
+        let delaunayArgs = reactive<{ points: Array<Geometry.Vertex3D>, total: number, output: Array<any> }>({ points: [], total: 3, output: [] });
         
         let drawTriangle = () => {
             let ctx = canvas.value?.getContext && canvas.value.getContext("2d");
@@ -73,7 +75,7 @@ export default defineComponent<ComponentPropsOptions<Props>, any, any>({
                 sideLengthArgs.output = cleng / gutter;
             }
 
-            if (type.value[0] === 'RightAngleHypotenuse') {
+            if (type.value[0] === "RightAngleHypotenuse") {
                 let { x, y, gutter } = descartes;
                 let aPoint = {
                     x: x + rightAngleHypotenuseArgs.a * gutter,
@@ -171,6 +173,69 @@ export default defineComponent<ComponentPropsOptions<Props>, any, any>({
                 ctx.closePath();
                 rightAngleSideArgs.output = output / gutter;
             }
+
+            if (type.value[0] === "Delaunay") { 
+                let { x, y, gutter } = descartes;
+                ctx.beginPath();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                for (let i = 0, len = delaunayArgs.points.length; i < len; i++) {
+                    ctx.moveTo(delaunayArgs.points[i].x, delaunayArgs.points[i].y);
+                    ctx.arc(delaunayArgs.points[i].x, delaunayArgs.points[i].y, 5, 0, 2 * Math.PI);
+                }
+                ctx.fill();
+                ctx.closePath();
+                let delaunayTriangle = Delaunay.Delaunay2d(delaunayArgs.points);
+                ctx.beginPath();
+                ctx.strokeStyle = "blue";
+                ctx.fillStyle = "blue";
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                for (let i = 0, len = delaunayTriangle.length; i < len; i += 3) { 
+                    let a = delaunayTriangle[i];
+                    let b = delaunayTriangle[i + 1];
+                    let c = delaunayTriangle[i + 2];
+                    
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.lineTo(c.x, c.y);
+                    ctx.lineTo(a.x, a.y);
+                    delaunayArgs.output.push(
+                        x + a.x * gutter, y - a.y * gutter,
+                        x + b.x * gutter, y - b.y * gutter,
+                        x + c.x * gutter, y - c.y * gutter
+                    );
+                }
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        let AddDelaunayPoint = (e: MouseEvent) => { 
+            if (type.value[0] === "Delaunay") {
+                delaunayArgs.points.push({ x: e.offsetX, y: e.offsetY, z: 0 });
+                drawTriangle();
+            }
+        }
+
+        let RoundDelaunayPoint = (e: MouseEvent) => {
+            if (type.value[0] === "Delaunay") {
+                delaunayArgs.points = [];
+                let { gutter } = descartes;
+                for (let i = 0; i < delaunayArgs.total; i++)
+                    delaunayArgs.points.push({ x: gutter * 50 * Math.random(), y: gutter * 40 * Math.random(), z: 0 });
+                drawTriangle();
+            }
+        }
+
+        let ClearDelaunayPoint = (e: MouseEvent) => {
+            if (type.value[0] === "Delaunay") {
+                delaunayArgs.points = [];
+                delaunayArgs.output = [];
+                drawTriangle();
+            }
         }
         
         let ResetSymmetryBase = () => {
@@ -263,7 +328,7 @@ export default defineComponent<ComponentPropsOptions<Props>, any, any>({
         return () => (
             <div class="container">
                 <div class="drawer-wapper">
-                    <canvas width="100%" height="100%" style="width: 100%; height: 100%" ref={canvas}></canvas>
+                    <canvas width="100%" height="100%" style="width: 100%; height: 100%" ref={canvas} onClick={ withModifiers(AddDelaunayPoint, ["capture", "stop"]) }></canvas>
                 </div>
                 <div class="drawer-args">
                     <acro-collapse v-model={[type.value, "active-key"]} accordion>
@@ -315,6 +380,22 @@ export default defineComponent<ComponentPropsOptions<Props>, any, any>({
                                 </acro-form-item>
                                 <acro-form-item label="输出结果">
                                     <acro-textarea model-value={ JSON.stringify(rightAngleSideArgs.output) } readonly/>
+                                </acro-form-item>
+                            </acro-form>
+                        </acro-collapse-item>
+                        <acro-collapse-item header="Delaunay三角" key="Delaunay">
+                            <acro-form model={delaunayArgs} layout="vertical">
+                                <acro-form-item label="数量">
+                                    <acro-slider v-model={delaunayArgs.total} min={3} max={300} step={1} />
+                                </acro-form-item>
+                                <acro-form-item label="操作">
+                                    <acro-space size="mini">
+                                        <acro-button type="primary" size="small" onClick={ClearDelaunayPoint}>清除</acro-button>
+                                        <acro-button type="primary" size="small" onClick={RoundDelaunayPoint}>随机</acro-button>
+                                    </acro-space>
+                                </acro-form-item>
+                                <acro-form-item label="输出结果">
+                                    <acro-textarea model-value={ JSON.stringify(delaunayArgs.output) } readonly/>
                                 </acro-form-item>
                             </acro-form>
                         </acro-collapse-item>
