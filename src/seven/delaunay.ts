@@ -797,19 +797,13 @@ export const Delaunay3d = (vertices: Array<Vertex3D>, point: Vertex3D) => {
     }
   }
   
-  // let vindex = 0;
-  // while (vindex < _tetrahedron.length) {
-  //   if (check(_tetrahedron[vindex], _superTetrahedron)) {
-  //     _tetrahedron.splice(vindex, 1);
-  //     continue;
-  //   }
-  //   vindex++;
-  // }
-
-  let reuslt = _tetrahedron.filter(it => !check(it, _superTetrahedron))
-  vertices = vertices.filter(v => !Object.is(v, _superTetrahedron.p1) || !Object.is(v, _superTetrahedron.p2) || !Object.is(v, _superTetrahedron.p3) || !Object.is(v, _superTetrahedron.p4));
-  return reuslt;
-
-  // let tree = kdTree(vertices, Distance, ["x", "y", "z"]);
-  // return tree.nearest(point, 3);
+  let vindex = 0;
+  while (vindex < _tetrahedron.length) {
+    if (check(_tetrahedron[vindex], _superTetrahedron)) {
+      _tetrahedron.splice(vindex, 1);
+      continue;
+    }
+    vindex++;
+  }
+  return _tetrahedron;
 }

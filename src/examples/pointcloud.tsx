@@ -56,6 +56,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 ctx.add(mesh);
                 ctx.add(mesh2);
                 let tetrahedron = Delaunay3d(delaunayArgs.points, { x: delaunayArgs.ver.x * gutter, y: delaunayArgs.ver.y * gutter, z: delaunayArgs.ver.z * gutter });
+
                 for (let i = 0, len = tetrahedron.length; i < len; i++) { 
                     let t = tetrahedron[i];
                     let tGeometry = new BufferGeometry();
