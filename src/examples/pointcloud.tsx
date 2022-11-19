@@ -10,6 +10,7 @@ import { Scene, Object3D, PerspectiveCamera, AxesHelper, WebGLRenderer, sRGBEnco
 import * as THREE from "three"
 import { Vertex3D } from "~/seven/declare"
 import { Delaunay3d } from "~/seven/delaunay"
+import { AnyAnglePoint } from "~/seven/point3d"
 
 type Props = {}
 
@@ -28,7 +29,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
         let body = new Object3D();
         let ctx = new Object3D();
         const renderer = new WebGLRenderer({ antialias: true });
-        let camera = new PerspectiveCamera(60, 1, 1, 3000);
+        let camera = new PerspectiveCamera(60, 1, 1, 3000000);
         camera.position.set(0, 0, 1500);
         camera.lookAt(scene.position);
         const axesHelper = new AxesHelper(100);
@@ -45,9 +46,47 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
             ctx.clear();
             if (type.value[0] === 'ConcaveHull') { 
                 let { gutter } = descartes;
+                
+                let vertex = [];
+                vertex.push({ x: 7, y: 150, z: 2.5 });
+                vertex.push({ x: -7, y: 150, z: 2.5 });
+                vertex.push(...new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: -7, y: 147, z: 2.5 }, 90 - (90 / 10 * i), 90, 3)));
+                vertex.push({ x: -10, y: -150, z: 2.5 });
+                vertex.push(...new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: -10, y: -150, z: 12.5 }, 270, 180 - (45 / 10 * i), 10, [0, 0, 0], true)));
+                let node = AnyAnglePoint(vertex[vertex.length - 1], 270, 45, 10, [0,0,0]);
+                vertex.push(node);
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: node.x + 3, y: node.y, z: node.z }, 0, 90 - (90 / 10 * i), 3, [45, 0, 0]))));
+                vertex.push({ x: vertex[vertex.length - 1].x + 14, y: vertex[vertex.length - 1].y, z: vertex[vertex.length - 1].z });
+                node = { x: node.x + 17, y: node.y, z: node.z };
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint(node, 0, 360 - (90 / 10 * i), 3, [45, 0, 0]))));
+                node = vertex[vertex.length - 1];
+                vertex.push(AnyAnglePoint(node, 0, 180, 10, [45, 0, 0]));
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: 10, y: -150, z: 12.5 }, 270, 90, 10, [45 + (45 / 10 * i), 0, 0]))));
+                vertex.push({ x: 10, y: 147, z: 2.5 });
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: 7, y: 147, z: 2.5 }, 180 - (90 / 10 * i), 90, 3, [0, 0, 0]))));
+                vertex.push({ x: 7, y: 150, z: 2.5 });
+                vertex.push({ x: 7, y: 150, z: -2.5 });
+                vertex.push({ x: -7, y: 150, z: -2.5 });
+                vertex.push(...new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: -7, y: 147, z: -2.5 }, 90 - (90 / 10 * i), 90, 3)));
+                vertex.push({ x: -10, y: -150, z: -2.5 });
+                vertex.push(...new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: -10, y: -150, z: 12.5 }, 270, 180 - (45 / 10 * i), 15, [0, 0, 0], true)));
+                node = AnyAnglePoint(vertex[vertex.length - 1], 270, 45, 10, [0,0,0]);
+                vertex.push(node);
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: node.x + 3, y: node.y, z: node.z }, 0, 90 - (90 / 10 * i), 3, [45, 0, 0]))));
+                vertex.push({ x: vertex[vertex.length - 1].x + 14, y: vertex[vertex.length - 1].y, z: vertex[vertex.length - 1].z });
+                node = { x: node.x + 17, y: node.y, z: node.z };
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint(node, 0, 360 - (90 / 10 * i), 3, [45, 0, 0]))));
+                node = vertex[vertex.length - 1];
+                vertex.push(AnyAnglePoint(node, 0, 180, 10, [45, 0, 0]));
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: 10, y: -150, z: 12.5 }, 270, 90, 15, [45 + (45 / 10 * i), 0, 0]))));
+                vertex.push({ x: 10, y: 147, z: -2.5 });
+                vertex.push(...(new Array(10).fill(0).map((_, i) => AnyAnglePoint({ x: 7, y: 147, z: -2.5 }, 180 - (90 / 10 * i), 90, 3, [0, 0, 0]))));
+                vertex.push({ x: 7, y: 150, z: -2.5 });
+                
                 let geometry = new BufferGeometry();
                 let verGeometry = new SphereGeometry(10, 32, 64);
-                geometry.setAttribute("position", new Float32BufferAttribute(delaunayArgs.points.map(it => [it.x, it.y, it.z]).flat(2), 3));
+                //delaunayArgs.points.map(it => [it.x, it.y, it.z]).flat(2)
+                geometry.setAttribute("position", new Float32BufferAttribute(vertex.map(it => [it.x, it.y, it.z]).flat(2), 3));
                 verGeometry.translate(delaunayArgs.ver.x * gutter, delaunayArgs.ver.y * gutter, delaunayArgs.ver.z * gutter);
                 let material = new PointsMaterial({ color: 0xff0000, size: 5, sizeAttenuation: false });
                 let mesh = new Points(geometry, material);
@@ -55,32 +94,34 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 let mesh2 = new Mesh(verGeometry, m1);
                 ctx.add(mesh);
                 ctx.add(mesh2);
-                let tetrahedron = Delaunay3d(delaunayArgs.points, { x: delaunayArgs.ver.x * gutter, y: delaunayArgs.ver.y * gutter, z: delaunayArgs.ver.z * gutter });
+                let tetrahedron = Delaunay3d(vertex);
+                // for (let i = 0, len = tetrahedron.length; i < len; i += 4) { 
+                //     let a = tetrahedron[i];
+                //     let b = tetrahedron[i + 1];
+                //     let c = tetrahedron[i + 2];
+                //     let d = tetrahedron[i + 3];
+                //     let tGeometry = new BufferGeometry();
+                //     let tetrahedronVertex = [
+                //         a.x || 0, a.y || 0, a.z || 0,
+                //         b.x || 0, b.y || 0, b.z || 0,
+                //         c.x || 0, c.y || 0, c.z || 0,
 
-                for (let i = 0, len = tetrahedron.length; i < len; i++) { 
-                    let t = tetrahedron[i];
-                    let tGeometry = new BufferGeometry();
-                    let tetrahedronVertex = [
-                        t.e1?.a.x || 0, t.e1?.a.y || 0, t.e1?.a.z || 0,
-                        t.e1?.b.x || 0, t.e1?.b.y || 0, t.e1?.b.z || 0,
-                        t.e1?.c.x || 0, t.e1?.c.y || 0, t.e1?.c.z || 0,
+                //         a.x || 0, a.y || 0, a.z || 0,
+                //         b.x || 0, b.y || 0, b.z || 0,
+                //         d.x || 0, d.y || 0, d.z || 0,
                         
-                        t.e2?.a.x || 0, t.e2?.a.y || 0, t.e2?.a.z || 0,
-                        t.e2?.b.x || 0, t.e2?.b.y || 0, t.e2?.b.z || 0,
-                        t.e2?.c.x || 0, t.e2?.c.y || 0, t.e2?.c.z || 0,
+                //         a.x || 0, a.y || 0, a.z || 0,
+                //         c.x || 0, c.y || 0, c.z || 0,
+                //         d.x || 0, d.y || 0, d.z || 0,
                         
-                        t.e3?.a.x || 0, t.e3?.a.y || 0, t.e3?.a.z || 0,
-                        t.e3?.b.x || 0, t.e3?.b.y || 0, t.e3?.b.z || 0,
-                        t.e3?.c.x || 0, t.e3?.c.y || 0, t.e3?.c.z || 0,
-    
-                        t.e4?.a.x || 0, t.e4?.a.y || 0, t.e4?.a.z || 0,
-                        t.e4?.b.x || 0, t.e4?.b.y || 0, t.e4?.b.z || 0,
-                        t.e4?.c.x || 0, t.e4?.c.y || 0, t.e4?.c.z || 0
-                    ];
-                    tGeometry.setAttribute("position", new Float32BufferAttribute(tetrahedronVertex, 3));
-                    let m2 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide, opacity: 0.3, transparent: true });
-                    ctx.add(new Mesh(tGeometry, m2));
-                }
+                //         b.x || 0, b.y || 0, b.z || 0,
+                //         c.x || 0, c.y || 0, c.z || 0,
+                //         d.x || 0, d.y || 0, d.z || 0
+                //     ];
+                //     tGeometry.setAttribute("position", new Float32BufferAttribute(tetrahedronVertex, 3));
+                //     let m2 = new MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide, opacity: 1, transparent: true });
+                //     ctx.add(new Mesh(tGeometry, m2));
+                // }
             }
         }
 
@@ -92,7 +133,7 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
 
             if (e.deltaY > 0) { 
                 camera.position.z+=10;
-                camera.position.z = camera.position.z > 3000 ? 3000 : camera.position.z;
+                camera.position.z = camera.position.z > 3000000 ? 3000000 : camera.position.z;
             }
             camera.updateProjectionMatrix();
         }, ["capture", "stop", "prevent"]);
