@@ -39,7 +39,7 @@ export const AnyAnglePoint = (p: Vertex3D, angle: number, polar: number, r: numb
 /**
  * @Author: SongQian
  * @Date: 2022/08/02 16:26
- * @description: 丙点的距离
+ * @description: 两点的距离
  * @param {Vertex3D} 三维空间中的点A
  * @param {Vertex3D} 三维空间中的点B
  * @return {*}

@@ -5,7 +5,8 @@
  * @eMail: onlylove117225594632vip.qq.com
  * @Description: 三维四面体生成
  */
-import { Vertex3D, Tetrahedron, Surface } from './declare'
+import { Vertex3D } from './declare'
+import { Distance } from './point3d'
 
 const EPSILON = 1.0 / 1048576.0;
 
@@ -598,11 +599,12 @@ const kdTree = function (points: Array<Vertex3D>, metric: (a: Vertex3D, b: Verte
 /**
  * @LastEditors: SongQian
  * @Date: 2022/08/05 17:34
- * @description: 三维Delaunay四面体剖分
- * @param {Array} vertices
- * @param {Vertex3D} point
+ * @description: 近邻算法
+ * @param {Array} 求近数据
+ * @param {Vertex3D} 当前顶点
  * @return {*}
  */
-export const Delaunay3d = (vertices: Array<Vertex3D>) => {
-  let ver = vertices.map(it => [it.x, it.y, it.z]).flat(2);
+export const Nearby = (vertices: Array<Vertex3D>, vertex: Vertex3D, size: number = 3) => {
+  let tree = kdTree(vertices, Distance, ["x", "y", "z"]);
+  return tree.nearest(vertex, size);
 }

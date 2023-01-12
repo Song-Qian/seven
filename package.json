@@ -1,6 +1,6 @@
 {
   "name": "@skysong/seven",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "Seven a geometry library",
   "main": "index.js",
   "types": "./typings/src/seven/index.d.ts",
@@ -9,7 +9,7 @@
     "webpack:examples": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.examples.js --progress",
     "webpack:build": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.seven.js --progress",
     "webpack:dev": "cross-env NODE_ENV=development webpack -w --config ./webpack/webpack.seven.js --progress",
-    "webpack:server": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8080 --open"
+    "webpack:server": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8083 --open"
   },
   "author": "songqian",
   "license": "MIT",

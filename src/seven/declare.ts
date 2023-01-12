@@ -72,23 +72,3 @@ export type Vertex3D = {
     
     _grid?: number;
 }
-
-export type Surface = {
-    a: Vertex3D;
-    b: Vertex3D;
-    c: Vertex3D;
-}
-
-export type Tetrahedron = {
-    p1: Vertex3D;
-    p2: Vertex3D;
-    p3: Vertex3D;
-    p4: Vertex3D;
-    center: Vertex3D;
-    r: number;
-    
-    e1?: Surface;
-    e2?: Surface;
-    e3?: Surface;
-    e4?: Surface;
-}
