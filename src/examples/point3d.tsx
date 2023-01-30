@@ -268,13 +268,13 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                         <acro-collapse-item header="近邻算法" key="KD">
                             <acro-form mode={nearby} layout="vertical">
                                 <acro-form-item label="原点x">
-                                    <acro-slider v-model={nearby.a.x} min={0} max={1200} onChange={drawerPoint} />
+                                    <acro-slider v-model={nearby.a.x} min={-600} max={600} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="原点y">
-                                    <acro-slider v-model={nearby.a.y} min={0} max={1200} onChange={drawerPoint} />
+                                    <acro-slider v-model={nearby.a.y} min={-600} max={600} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="原点z">
-                                    <acro-slider v-model={nearby.a.z} min={0} max={1200} onChange={drawerPoint} />
+                                    <acro-slider v-model={nearby.a.z} min={-600} max={600} onChange={drawerPoint} />
                                 </acro-form-item>
                                 <acro-form-item label="随机点数">
                                     <acro-slider v-model={nearby.total} min={50} max={200} onChange={drawerPoint} />
