@@ -1,6 +1,6 @@
 /*
  * @Author: SongQian
- * @LastEditors: SongQian
+ * @LastEditors: @skysong
  * @Date: 2022/07/07 10:01
  * @eMail: onlylove117225594632vip.qq.com
  * @Description: 三维点运算案例
@@ -155,7 +155,6 @@ export default defineComponent<ComponentOptionsWithoutProps<Props>, any, any>({
                 }
                 nearby.output = result;
             }
-
 
         }
 
