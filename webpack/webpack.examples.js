@@ -16,6 +16,7 @@ module.exports = merge(webpackConfig, {
     },
     output: {
         'path' : path.resolve(__dirname, '../', 'docs'),
+        'publicPath': './',
         'filename': 'examples/[name].[hash:8].js'
     },
     plugins: [
