@@ -1,6 +1,6 @@
 /*
  * @Author: SongQian
- * @LastEditors: SongQian
+ * @LastEditors: @skysong
  * @Date: 2022/05/18 09:29
  * @eMail: onlylove117225594632vip.qq.com
  * @Description: Seven Examples
@@ -34,11 +34,7 @@ const app = createApp({
                         </acro-sub-menu>
                         <acro-sub-menu title={"三维物理"}>
                             <acro-menu-item key="Point3D">3维点运算</acro-menu-item>
-                            <acro-menu-item key="PointCloud">物理A</acro-menu-item>
-                            <acro-menu-item key="CircleA">物理A</acro-menu-item>
-                            <acro-menu-item key="ArcA">物理A</acro-menu-item>
-                            <acro-menu-item key="RectA">物理A</acro-menu-item>
-                            <acro-menu-item key="TriangleA">物理A</acro-menu-item>
+                            <acro-menu-item key="PointCloud">努力扩展中...</acro-menu-item>
                         </acro-sub-menu>
                     </acro-menu>
                 </acro-layout-sider>

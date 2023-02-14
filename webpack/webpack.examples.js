@@ -19,6 +19,7 @@ module.exports = merge(webpackConfig, {
         'publicPath': './',
         'filename': 'examples/[name].[hash:8].js'
     },
+    mode: 'production',
     plugins: [
         new htmlPlugin({
             title : 'Seven',

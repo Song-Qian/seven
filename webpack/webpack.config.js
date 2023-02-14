@@ -1,6 +1,6 @@
 /*
  * @Author: SongQian
- * @LastEditors: SongQian
+ * @LastEditors: @skysong
  * @Date: 2022/06/24 13:25
  * @eMail: onlylove117225594632vip.qq.com
  * @Description: webpack.config 入口配置
@@ -25,7 +25,6 @@ module.exports = merge({}, {
   },
   resolve,
   optimization,
-  mode: 'production',
   plugins: [
     new miniCssExtractPlugin({
       filename: 'examples/assets/css/[name].css',
