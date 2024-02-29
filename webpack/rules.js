@@ -1,19 +1,42 @@
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/23 16:26
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: 这是一个魔术，来自Author创作，需要修改请留下大名~!
+ */
 /**
  * Developer    :   SongQian
  * Time         :   2019/03/09
  * eMail        :   onlylove1172559463@vip.qq.com
  * Description  :   生产编译处理配置
  */
+const tsTransformPaths = require('@zerollup/ts-transform-paths');
 
-module.exports = function(miniCssExtractPlugin) {
-
+module.exports = function (miniCssExtractPlugin) {
+  
   const JS_Loader = {
-    test: /\.(js|jsx|ts|tsx)$/i,
+    test: /\.(js|jsx|tsx)$/,
     exclude: /node_modules/,
     use: {
       loader: 'babel-loader',
       options: {
-        presets:['@babel/preset-env']
+        presets:[['@babel/preset-env', { targets : { node: "current" } }]]
+      }
+    }
+  }
+
+  const TS_Loader = {
+    test : /\.ts$/,
+    loader: 'ts-loader',
+    exclude: /node_modules/,
+    options: {
+      getCustomTransformers: (program) => {
+        const transformer = tsTransformPaths(program);
+        return {
+          before: [transformer.before],
+          afterDeclarations: [transformer.afterDeclarations]
+        };
       }
     }
   }
@@ -22,7 +45,7 @@ module.exports = function(miniCssExtractPlugin) {
     test: /\.(png|jpg|gif)$/i,
     type: 'asset',
     generator: {
-      filename: 'assets/images/[name].[ext]?cache=[hash:8]'
+      filename:  'assets/images/[name].[ext]?cache=[hash:8]'
     }
   }
 
@@ -53,6 +76,7 @@ module.exports = function(miniCssExtractPlugin) {
 
   return [
     JS_Loader,
+    TS_Loader,
     URL_Loaer,
     SASS_Loader,
     File_Loader,

@@ -1,12 +1,13 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :   webpack.config 入口配置
+/*
+ * @Author: SongQian
+ * @LastEditors: @skysong
+ * @Date: 2022/06/24 13:25
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: webpack.config 入口配置
  */
+
 const { merge } = require('webpack-merge')
 const miniCssExtractPlugin = require('mini-css-extract-plugin')
-
 const entry = require("./entry")
 const output = require("./output")
 const rules = require("./rules")
@@ -24,10 +25,10 @@ module.exports = merge({}, {
   },
   resolve,
   optimization,
-  mode: 'production',
   plugins: [
     new miniCssExtractPlugin({
-      filename: 'assets/css/[name].css'
+      filename: 'examples/assets/css/[name].css',
+      chunkFilename: 'examples/assets/css/[name].[contenthash:8].css',
     }),
     ...plugins()
   ],

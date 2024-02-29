@@ -1,27 +1,21 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :   生产依赖插件配置
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/24 13:45
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: 生产依赖插件配置
  */
-const htmlPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
-const path = require('path');
+
+const webpack = require('webpack')
+const path = require('path')
 
 module.exports = function() {
-    let htmlPlugins = new htmlPlugin({
-        title : 'cobweb',
-        filename : 'index.html',
-        template : path.resolve(__dirname, '../', 'index.html'),
-        favicon : false,
-        chunks : ['index']
-    });
 
     let bannerPlugin = new webpack.BannerPlugin({
         banner : `Developer :   SongQian
-Time    :   2021-12-08
+Time    :   2022-04-01
 eMail   :   onlylove1172559463@vip.qq.com
-Description :  Cobweb`,
+Description :  Seven`,
         raw : false,
         entryOnly : false,
         test : /\.(ts|tsx|js)/,
@@ -37,7 +31,6 @@ Description :  Cobweb`,
     // }
 
     return [
-        htmlPlugins,
         bannerPlugin
     ]
 }

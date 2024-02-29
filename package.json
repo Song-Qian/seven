@@ -1,35 +1,63 @@
 {
-  "name": "cobweb",
-  "version": "0.0.1",
-  "description": "",
+  "name": "@skysong/seven",
+  "version": "0.0.23",
+  "description": "Seven a geometry library",
   "main": "index.js",
+  "types": "./typings/src/seven/index.d.ts",
   "scripts": {
-    "webpack:build": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.config.js --progress",
-    "webpack:dev": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8080 --open"
+    "webpack:prod": "concurrently 'npm run webpack:examples' 'npm run webpack:build' 'npm run webpack:dev'",
+    "webpack:examples": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.examples.js --progress",
+    "webpack:build": "cross-env NODE_ENV=production webpack -w --config ./webpack/webpack.seven.js --progress",
+    "webpack:dev": "cross-env NODE_ENV=development webpack -w --config ./webpack/webpack.seven.js --progress",
+    "webpack:server": "cross-env NODE_ENV=development webpack serve --config ./webpack/webpack.serve.js --host localhost --hot --port 8083 --open"
   },
   "author": "songqian",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime-corejs3": "^7.18.3",
+    "decimal.js": "^10.4.0",
+    "earcut": "^2.2.4",
+    "three": "^0.142.0",
     "vue": "^3.2.31"
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.22.1",
-    "@babel/core": "^7.13.8",
-    "@babel/plugin-transform-runtime": "^7.16.4",
+    "@babel/core": "^7.18.5",
+    "@babel/plugin-proposal-class-properties": "^7.17.12",
+    "@babel/plugin-syntax-decorators": "^7.17.12",
+    "@babel/plugin-transform-runtime": "^7.18.5",
     "@babel/plugin-transform-typescript": "^7.13.0",
     "@babel/preset-env": "^7.13.9",
+    "@babel/preset-typescript": "^7.17.12",
+    "@types/earcut": "^2.1.1",
+    "@types/three": "^0.141.0",
     "@vue/babel-plugin-jsx": "^1.0.3",
+    "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-loader": "^8.2.2",
-    "concurrently": "^6.3.0",
+    "concurrently": "^6.5.1",
     "css-loader": "^6.4.0",
     "html-webpack-plugin": "^5.5.0",
-    "mini-css-extract-plugin": "^2.4.3",
+    "mini-css-extract-plugin": "^2.6.0",
     "sass": "^1.43.3",
-    "sass-loader": "^7.3.1",
-    "typescript": "^4.2.2",
+    "sass-loader": "^13.0.0",
+    "ts-loader": "^9.2.4",
+    "typescript": "^4.3.5",
     "webpack": "^5.60.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.3.1",
     "webpack-merge": "^5.7.3"
+<<<<<<< HEAD
   }
 }
+=======
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com:Song-Qian/seven.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Song-Qian/seven/issues"
+  },
+  "homepage": "https://github.com/Song-Qian/seven#readme"
+}
+>>>>>>> f52ac2dbc858033f6e5040a9083ed9476d0bcc6a

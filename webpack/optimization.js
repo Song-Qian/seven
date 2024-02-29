@@ -1,19 +1,19 @@
-/**
- * Developer    :   SongQian
- * Time         :   2019/03/09
- * eMail        :   onlylove1172559463@vip.qq.com
- * Description  :   提取公共脚本
+/*
+ * @Author: SongQian
+ * @LastEditors: SongQian
+ * @Date: 2022/06/23 16:53
+ * @eMail: onlylove117225594632vip.qq.com
+ * @Description: 提取公共脚本
  */
 
 const TerserPlugin = require('terser-webpack-plugin');
-const { join } = require('path')
 
 module.exports = {
    minimize : process.env.NODE_ENV === 'production',
    minimizer : process.env.NODE_ENV === 'production' ? [
        new TerserPlugin({
            test: /\.(js|jsx|ts|tsx)$/i,
-           exclude : /[\\/]node_modules[\\/]/, //要排除的文件。
+           exclude :  [/[\\/]node_modules[\\/]/, /(\.d)\.(tsx?)/], //要排除的文件。
            parallel : true,  //使用多进程并行运行可提高构建速度。
            extractComments : false, //启用/禁用提取注释。提取all或some（使用/^\**!|@preserve|@license|@cc_on/iRegExp）注释。
            terserOptions : {
@@ -35,12 +35,6 @@ module.exports = {
        minSize : 20480,
        minChunks : 1,
        maxAsyncRequests : 50,
-       maxInitialRequests : 50,
-       cacheGroups: {
-           'default': {
-               filename: '[name].build.js',
-               priority: 20
-           }
-       }
+       maxInitialRequests : 50
    }
 }

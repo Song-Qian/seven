@@ -1,14 +1,13 @@
 {
-    "presets": ["@babel/preset-env"],
+    "presets": [
+        ["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }],
+        ["@babel/preset-typescript", { "isTSX": true, "allExtensions": true }]
+    ],
     "plugins": [
+        "@babel/plugin-proposal-class-properties",
         ["@vue/babel-plugin-jsx", { "transformOn" : false, "mergeProps" : true, "enableObjectSlots": true }],
-        "@babel/plugin-transform-runtime",
-        [
-            "@babel/plugin-transform-typescript",
-            {
-              "isTSX": true,
-              "allowNamespace": true
-            }
-        ]
+        ["@babel/plugin-transform-runtime", { "corejs": 3, "helpers": true }],
+        ["@babel/plugin-syntax-decorators", { "legacy": true }],
+        ["@babel/plugin-transform-typescript", { "isTSX": true, "allowNamespace": true }]
     ]
 }
